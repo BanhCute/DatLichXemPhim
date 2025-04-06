@@ -1,6 +1,6 @@
 let jwt = require('jsonwebtoken');
 require('dotenv').config();
-let userController = require('../controllers/userController');
+let userController = require('../controllers/authController');
 
 module.exports = {
     CheckAuth: async function (req, res, next) {

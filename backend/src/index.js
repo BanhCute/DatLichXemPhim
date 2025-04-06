@@ -10,10 +10,10 @@ app.use(cors()); // Cho phép frontend gọi API
 app.use(express.json()); // Parse JSON request body
 
 // Import routes
-const authRoutes = require("./routes/auth.routes");
-const movieRoutes = require("./routes/movie.routes");
-const showTimeRoutes = require("./routes/showTime.routes");
-const bookingRoutes = require("./routes/booking.routes");
+const authRoutes = require("./routes/authRoute");
+const movieRoutes = require("./routes/movieRoute");
+const showTimeRoutes = require("./routes/showTimeRoute");
+const bookingRoutes = require("./routes/bookingRoute");
 
 // Đăng ký routes
 app.use("/api/auth", authRoutes); // Các API liên quan đến auth
