@@ -9,8 +9,27 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Email: ${formData.email}\nPassword: ${formData.password}`);
-    // Xử lý đăng nhập
+    fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Đăng nhập không thành công");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        localStorage.setItem("token", data.data);
+        window.location.href = "/movies";
+        window.dispatchEvent(new Event("storage"));
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   };
 
   return (
