@@ -7,6 +7,8 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import { Link } from "react-router-dom";
+
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
@@ -28,6 +30,7 @@ const MovieList = () => {
     >
       {movies.map((movie) => (
         <Grid item xs={12} sm={6} md={4} key={movie.id}>
+          <Link to={`/movies/${movie.id}`} style={{ textDecoration: "none" }}>
           <Card
             sx={{
               height: "100%",
@@ -70,6 +73,7 @@ const MovieList = () => {
               </Button>
             </CardContent>
           </Card>
+          </Link>
         </Grid>
       ))}
     </Grid>
