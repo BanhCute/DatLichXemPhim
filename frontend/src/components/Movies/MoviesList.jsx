@@ -6,7 +6,6 @@ import {
   CardContent,
   Typography,
   Button,
-  Stack,
 } from "@mui/material";
 
 const MovieList = () => {
@@ -20,51 +19,60 @@ const MovieList = () => {
   }, []);
 
   return (
-    <Stack
+    <Grid
+      container
+      spacing={6}
       sx={{
-        width: "100vw",
-        height: "100vh",
         padding: "24px",
-        
       }}
     >
-      <Grid container spacing={3}>
-        {movies.map((movie) => (
-          <Grid item xs={12} sm={6} md={4} key={movie.id}>
-            <Card sx={{height: "100%"}}>
-              <CardMedia
-                component="img"
-                image={movie.imageUrl}
-                alt={movie.title}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {movie.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    maxWidth: "200px",
-                    height: "100%",
-                    overflow: "auto",
-                    whiteSpace: "normal",
-                    wordBreak: "break-word",
-                    paddingRight: "8px",
-                  }}
-                >
-                  {movie.description}
-                </Typography>
+      {movies.map((movie) => (
+        <Grid item xs={12} sm={6} md={4} key={movie.id}>
+          <Card
+            sx={{
+              height: "100%",
+              border: "2px solid #1976d2", // viền xanh đậm (blue primary)
+              borderRadius: "16px", // bo góc cho xịn
+              boxShadow: 3, // bóng nhẹ tạo chiều sâu
+              transition: "all 0.3s ease-in-out",
+              "&:hover": {
+                boxShadow: 6, // bóng đậm hơn khi hover
+                transform: "scale(1.02)", // phóng to nhẹ khi hover
+              },
+            }}
+          >
+            <CardMedia
+              component="img"
+              image={movie.imageUrl}
+              alt={movie.title}
+            />
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="div">
+                {movie.title}
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  maxWidth: "200px",
+                  height: "100%",
+                  overflow: "auto",
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
+                  paddingRight: "8px",
+                }}
+              >
+                {movie.description}
+              </Typography>
 
-                <Button size="small" color="primary">
-                  Đặt vé
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Stack>
+              <Button size="small" color="primary">
+                Đặt vé
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 

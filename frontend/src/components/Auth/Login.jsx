@@ -25,6 +25,9 @@ const Login = () => {
       .then((data) => {
         localStorage.setItem("token", data.data);
         window.location.href = "/movies";
+
+        window.dispatchEvent(new Event("storage"));
+
       })
       .catch((err) => {
         alert(err.message);
