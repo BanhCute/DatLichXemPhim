@@ -16,13 +16,20 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/movies/${id}`)
+    const token = localStorage.getItem("token");
+  
+    fetch(`http://localhost:5000/api/movies/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
-      .then((data) => setMovie(data))
+      .then((data) => setMovie(data.data || data))
       .catch((err) => console.error("Error fetching movie:", err));
   }, [id]);
+  
 
-  if (!movie) return <div>Loading...</div>;
+  if (!movie) return <div>Movie not found</div>;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>

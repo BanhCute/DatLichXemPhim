@@ -5,27 +5,27 @@ const authController = require('../controllers/authController');
 module.exports = {
     CheckAuth: async function (req, res, next) {
         if (req.headers && req.headers.authorization) {
-            let authorization = req.headers.authorization;
-            if (authorization.startsWith("Bearer")) {
-                let token = authorization.split(" ")[1];
-                try {
-                    let result = jwt.verify(token, process.env.SECRET_KEY);
-                    let user = await authController.GetUserByID(result.id);
-                    if (!user) {
-                        throw new Error("User không tồn tại");
-                    }
-                    req.user = user;
-                    next();
-                } catch (error) {
-                    throw new Error("Token không hợp lệ");
-                }
-            } else {
-                throw new Error("Chưa đăng nhập");
+          let authorization = req.headers.authorization;
+          if (authorization.startsWith("Bearer")) {
+            let token = authorization.split(" ")[1];
+            try {
+              let result = jwt.verify(token, process.env.SECRET_KEY);
+              let user = await authController.GetUserByID(result.id);
+              if (!user) {
+                return res.status(401).json({ message: "User không tồn tại" });
+              }
+              req.user = user;
+              next();
+            } catch (error) {
+              return res.status(403).json({ message: "Token không hợp lệ" });
             }
+          } else {
+            return res.status(401).json({ message: "Chưa đăng nhập" });
+          }
         } else {
-            throw new Error("Chưa đăng nhập");
+          return res.status(401).json({ message: "Chưa đăng nhập" });
         }
-    },
+      },
     CheckRole: function (roles) {
         return async function (req, res, next) {
             try {
