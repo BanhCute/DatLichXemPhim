@@ -31,7 +31,6 @@ module.exports = {
     let user = await prisma.user.findUnique({
       where: { email: email },
     });
-    console.log(user);
     if (!user) {
       throw new Error("Email hoặc mật khẩu không đúng");
     }

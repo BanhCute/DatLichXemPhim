@@ -23,7 +23,6 @@ router.post('/register', async function (req, res, next) {
 router.post('/login', async function (req, res, next) {
   try {
     let { email, password } = req.body;
-    console.log(email, password);
     let user = await authController.CheckLogin(email, password);
     CreateSuccessRes(res, jwt.sign({ 
       id: user.id, email: user.email,
