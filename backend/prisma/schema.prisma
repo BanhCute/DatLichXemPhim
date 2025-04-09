@@ -25,6 +25,8 @@ model Movie {
   duration    Int
   imageUrl    String?
   showTimes   ShowTime[]
+  genres      Genre[]    @relation("MovieGenres")
+  genres      MovieGenre[] @relation("MovieGenre")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -64,6 +66,70 @@ model Booking {
   status     BookingStatus @default(PENDING)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Genre {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  movies    Movie[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MovieGenre {
+  id        Int      @id @default(autoincrement())
+  movieId   Int
+  genreId   Int
+  movie     Movie    @relation(fields: [movieId], references: [id], name: "MovieGenre")
+  genre     Genre    @relation(fields: [genreId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  movieId    Int
+  user       User     @relation(fields: [userId], references: [id])
+  movie      Movie    @relation(fields: [movieId], references: [id])
+  rating     Int      @default(0)
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Promotion {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  discount   Float
+  startDate  DateTime
+  endDate    DateTime
+  bookings   Booking[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Payment {
+  id          Int       @id @default(autoincrement())
+  bookingId   Int
+  booking     Booking   @relation(fields: [bookingId], references: [id])
+  amount      Float
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
 
 enum Role {
