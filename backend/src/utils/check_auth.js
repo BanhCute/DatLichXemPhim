@@ -1,6 +1,6 @@
 let jwt = require('jsonwebtoken');
 require('dotenv').config();
-let userController = require('../controllers/authController');
+const authController = require('../controllers/authController');
 
 module.exports = {
     CheckAuth: async function (req, res, next) {
@@ -10,7 +10,7 @@ module.exports = {
                 let token = authorization.split(" ")[1];
                 try {
                     let result = jwt.verify(token, process.env.SECRET_KEY);
-                    let user = await userController.GetUserByID(result.id);
+                    let user = await authController.GetUserByID(result.id);
                     if (!user) {
                         throw new Error("User không tồn tại");
                     }
