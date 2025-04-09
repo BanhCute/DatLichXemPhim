@@ -9,6 +9,7 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    alert(`Email: ${formData.email}\nPassword: ${formData.password}`);
     // Xử lý đăng nhập
   };
 
