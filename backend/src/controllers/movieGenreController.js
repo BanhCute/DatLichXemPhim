@@ -1,26 +1,23 @@
-import { PrismaClient } from '@prisma/client';
+let { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-export const getAllMovieGenres = async (req, res) => {
-  try {
-    const movieGenres = await prisma.movieGenre.findMany({
+module.exports = {
+  GetAll: async function () {
+    return await prisma.movieGenre.findMany({
       include: { movie: true, genre: true },
     });
-    res.json(movieGenres);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  },
 
-export const createMovieGenre = async (req, res) => {
-  try {
-    const { movieId, genreId } = req.body;
-    const movieGenre = await prisma.moviegenre.create({
-      data: { movieId, genreId },
-    });
-    res.json(movieGenre);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  Create: async function (req) {
+    try {
+      let { movieId, genreId } = req.body;
+      let movieGenre = await prisma.movieGenre.create({
+        data: { movieId, genreId },
+      });
+      return movieGenre;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 };

@@ -4,7 +4,7 @@ let promotionController = require('../controllers/promotionController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth, CheckRole } = require('../utils/check_auth');
 
-router.get('/', [CheckAuth], async function (req, res, next) {
+router.get('/', async function (req, res, next) {
   try {
     let promotions = await promotionController.GetAll();
     CreateSuccessRes(res, promotions, 200);

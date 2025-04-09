@@ -4,7 +4,7 @@ let movieGenreController = require('../controllers/movieGenreController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth, CheckRole } = require('../utils/check_auth');
 
-router.get('/', CheckAuth, async function (req, res, next) {
+router.get('/', async function (req, res, next) {
   try {
     let movieGenres = await movieGenreController.GetAll();
     CreateSuccessRes(res, movieGenres, 200);

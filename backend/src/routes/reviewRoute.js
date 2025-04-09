@@ -16,7 +16,7 @@ router.get('/', CheckAuth, async function (req, res, next) {
 router.post('/', CheckAuth, async function (req, res, next) {
   try {
     let body = req.body;
-    let newReview = await reviewController.createReview(body);
+    let newReview = await reviewController.Create(body);
     CreateSuccessRes(res, newReview, 201);
   } catch (error) {
     next(error);

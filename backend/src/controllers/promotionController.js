@@ -1,24 +1,21 @@
-import { PrismaClient } from '@prisma/client';
+let { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-export const getAllPromotions = async (req, res) => {
-  try {
-    const promotions = await prisma.promotion.findMany();
-    res.json(promotions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+module.exports = {
+  GetAll: async function () {
+    return await prisma.promotion.findMany();
+  },
 
-export const createPromotion = async (req, res) => {
-  try {
-    const { code, discount, startDate, endDate } = req.body;
-    const promotion = await prisma.promotion.create({
-      data: { code, discount, startDate, endDate },
-    });
-    res.json(promotion);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  Create: async function (req) {
+    try {
+      let { code, discount, startDate, endDate } = req.body;
+      let promotion = await prisma.promotion.create({
+        data: { code, discount, startDate, endDate },
+      });
+      return promotion;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 };
