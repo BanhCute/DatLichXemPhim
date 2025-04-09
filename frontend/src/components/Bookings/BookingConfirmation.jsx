@@ -7,10 +7,12 @@ import {
   Button,
   Divider,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const BookingConfirmation = ({ booking }) => {
+const BookingConfirmation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { movie } = location.state || {}; // Lấy thông tin phim từ state
 
   return (
     <Container maxWidth="sm">
@@ -21,24 +23,23 @@ const BookingConfirmation = ({ booking }) => {
         <Divider sx={{ my: 2 }} />
         <Box sx={{ my: 2 }}>
           <Typography variant="subtitle1">Thông tin phim:</Typography>
-          <Typography>Phim: {booking?.movie?.title}</Typography>
-          <Typography>Suất chiếu: {booking?.showTime?.startTime}</Typography>
-          <Typography>Phòng: {booking?.showTime?.room}</Typography>
+          <Typography>Phim: {movie?.title}</Typography>
+          <Typography>Mô tả: {movie?.description}</Typography>
         </Box>
         <Box sx={{ my: 2 }}>
           <Typography variant="subtitle1">Ghế đã chọn:</Typography>
-          <Typography>{booking?.seats?.join(", ")}</Typography>
-        </Box>
-        <Box sx={{ my: 2 }}>
-          <Typography variant="subtitle1">Tổng tiền:</Typography>
-          <Typography variant="h6">{booking?.totalPrice}đ</Typography>
+          <Typography>Vui lòng chọn ghế ở bước tiếp theo.</Typography>
         </Box>
         <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
           <Button variant="outlined" onClick={() => navigate(-1)}>
             Quay lại
           </Button>
-          <Button variant="contained" color="primary">
-            Xác nhận đặt vé
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/seat-selection", { state: { movie } })}
+          >
+            Chọn ghế
           </Button>
         </Box>
       </Paper>

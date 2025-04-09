@@ -7,11 +7,14 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+
 import { Link } from "react-router-dom";
+
 
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/movies")
@@ -19,6 +22,10 @@ const MovieList = () => {
       .then((data) => setMovies(data.data || []))
       .catch((err) => console.error("Error fetching movies:", err));
   }, []);
+
+  const handleBooking = (movie) => {
+    navigate("/booking-confirmation", { state: { movie } });
+  };
 
   return (
     <Grid
