@@ -5,8 +5,8 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  });
-
+  })
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     alert(`Email: ${formData.email}\nPassword: ${formData.password}`);
