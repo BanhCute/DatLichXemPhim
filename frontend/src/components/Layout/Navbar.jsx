@@ -14,7 +14,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    navigate("/login"); // hoặc "/"
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -23,36 +23,90 @@ const Navbar = () => {
       setIsLoggedIn(!!token);
     };
 
-    checkToken(); // lần đầu render
-
-    window.addEventListener("storage", checkToken); // cập nhật khi có event
+    checkToken();
+    window.addEventListener("storage", checkToken);
 
     return () => window.removeEventListener("storage", checkToken);
   }, []);
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Đặt vé xem phim
+    <AppBar
+      position="static"
+      sx={{
+        backgroundColor: "#141414",
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.8)",
+      }}
+    >
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+            color: "#e50914",
+            letterSpacing: 1.5,
+          }}
+        >
+          🎬 RẠP PHIM LGTV
         </Typography>
         <Box>
-          <Button color="inherit" component={Link} to="/">
+          <Button
+            component={Link}
+            to="/"
+            sx={{
+              color: "#fff",
+              mx: 1,
+              "&:hover": { color: "#e50914" },
+            }}
+          >
             Trang chủ
           </Button>
-          <Button color="inherit" component={Link} to="/movies">
+          <Button
+            component={Link}
+            to="/movies"
+            sx={{
+              color: "#fff",
+              mx: 1,
+              "&:hover": { color: "#e50914" },
+            }}
+          >
             Phim
           </Button>
 
           {isLoggedIn ? (
-            <Button color="inherit" onClick={handleLogout}>
+            <Button
+              onClick={handleLogout}
+              sx={{
+                color: "#fff",
+                mx: 1,
+                "&:hover": { color: "#e50914" },
+              }}
+            >
               Đăng xuất
             </Button>
           ) : (
-            <Button color="inherit" component={Link} to="/login">
+            <Button
+              component={Link}
+              to="/login"
+              sx={{
+                color: "#fff",
+                mx: 1,
+                "&:hover": { color: "#e50914" },
+              }}
+            >
               Đăng nhập
             </Button>
           )}
+          <Button
+            component={Link}
+            to="/register"
+            sx={{
+              color: "#fff",
+              mx: 1,
+              "&:hover": { color: "#e50914" },
+            }}
+          >
+            Đăng ký
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>
