@@ -1,142 +1,228 @@
-let { PrismaClient } = require("@prisma/client");
-
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const jwt = require("jsonwebtoken");
 
-module.exports = {
-    GetAll: async function () {
-        return await prisma.booking.findMany({
+const bookingController = {
+  // Get all bookings
+  GetAll: async function (req, res) {
+    try {
+      const bookings = await prisma.booking.findMany({
+        include: {
+          showTime: {
             include: {
-                user: true,
-                showTime: true,
-                seats: true,
+              movie: true,
             },
-            where: {
-                isDeleted: false,
-            },
+          },
+          seats: true,
+        },
+      });
+      return res.json({ data: bookings });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Get booking by id
+  GetById: async function (req, res) {
+    try {
+      const bookingId = parseInt(req.params.id);
+
+      if (!bookingId) {
+        return res.status(400).json({
+          message: "ID đặt vé không hợp lệ",
         });
-    },
+      }
 
-    GetByUser: async function (req) {
-        try {
-            if (req.user.id !== parseInt(req.params.userId)) {
-                throw new Error("Không có quyền xem lịch sử này");
-            }
+      const booking = await prisma.booking.findUnique({
+        where: {
+          id: bookingId,
+        },
+        include: {
+          showTime: {
+            include: {
+              movie: true,
+            },
+          },
+          seats: true,
+          promotion: true,
+        },
+      });
 
-            let bookings = await prisma.booking.findMany({
-                where: { userId: parseInt(req.params.userId) },
-                include: {
-                    showTime: {
-                        include: { movie: true },
-                    },
-                    seats: true,
-                },
-            });
+      if (!booking) {
+        return res.status(404).json({
+          message: "Không tìm thấy đơn đặt vé",
+        });
+      }
 
-            return bookings;
-        } catch (error) {
-            throw new Error(error.message);
+      return res.json({
+        data: booking,
+      });
+    } catch (error) {
+      console.error("Error in GetById:", error);
+      return res.status(500).json({
+        message: "Lỗi server: " + error.message,
+      });
+    }
+  },
+
+  // Create booking
+  Create: async function (req, res) {
+    try {
+      let { showTimeId, seatNumbers, promotionCode } = req.body;
+
+      // Lấy userId từ token
+      const token = req.headers.authorization?.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.id;
+
+      // Kiểm tra user và showTime
+      let user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      const showTimeIdInt = parseInt(showTimeId);
+      let showTime = await prisma.showTime.findUnique({
+        where: { id: showTimeIdInt },
+        include: {
+          movie: true,
+        },
+      });
+
+      if (!user || !showTime) {
+        return res
+          .status(404)
+          .json({ message: "User hoặc suất chiếu không tồn tại" });
+      }
+
+      // Tính tổng tiền gốc
+      let totalPrice = seatNumbers.length * showTime.price;
+      let promotionId = null;
+
+      // Kiểm tra và áp dụng mã giảm giá nếu có
+      if (promotionCode) {
+        const promotion = await prisma.promotion.findFirst({
+          where: {
+            code: promotionCode,
+            startDate: {
+              lte: new Date(),
+            },
+            endDate: {
+              gte: new Date(),
+            },
+          },
+        });
+
+        if (promotion) {
+          promotionId = promotion.id;
+          const discount = totalPrice * (promotion.discount / 100);
+          totalPrice = totalPrice - discount;
         }
-    },
+      }
 
-    Create: async function (req) {
-        try {
-            let { userId, showTimeId, seatNumbers, promotionId } = req.body;
-    
-            // Kiểm tra user và showTime
-            let user = await prisma.user.findUnique({ where: { id: userId } });
-            let showTime = await prisma.showTime.findUnique({
-                where: { id: showTimeId },
-            });
-    
-            if (!user || !showTime) {
-                throw new Error("User hoặc xuất chiếu không tồn tại");
-            }
-    
-            // Kiểm tra seats đã được book chưa
-            const existingSeats = await prisma.seat.findMany({
-                where: {
-                    showTimeId: showTimeId,
-                    number: { in: seatNumbers },
-                    status: "BOOKED"
-                }
-            });
-    
-            if (existingSeats.length > 0) {
-                const bookedSeatNumbers = existingSeats.map(seat => seat.number);
-                throw new Error(`Các ghế ${bookedSeatNumbers.join(", ")} đã được đặt`);
-            }
-    
-            // Lấy thông tin promotion nếu có
-            let promotion = null;
-            if (promotionId) {
-                promotion = await prisma.promotion.findUnique({
-                    where: { id: promotionId },
-                });
-                if (!promotion) {
-                    throw new Error("Mã khuyến mãi không tồn tại");
-                }
-                const currentDate = new Date();
-                if (currentDate < new Date(promotion.startDate) || 
-                    currentDate > new Date(promotion.endDate)) {
-                    throw new Error("Mã khuyến mãi đã hết hạn");
-                }
-            }
-    
-            // Tính tổng giá
-            const basePrice = showTime.price;
-            const quantity = seatNumbers.length;
-            let totalPrice = basePrice * quantity;
-    
-            // Áp dụng promotion nếu có
-            if (promotion) {
-                let discount = totalPrice * (promotion.discount / 100);
-                totalPrice -= discount;
-            }
-    
-            // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
-            const bookingResult = await prisma.$transaction(async (prisma) => {
-                // Tạo booking
-                const booking = await prisma.booking.create({
-                    data: {
-                        userId: userId,
-                        showTimeId: showTimeId,
-                        totalPrice: totalPrice,
-                        status: "PENDING",
-                        promotionId: promotionId || null,
-                    },
-                });
-    
-                // Tạo seats
-                const seats = await Promise.all(
-                    seatNumbers.map((seatNumber) =>
-                        prisma.seat.create({
-                            data: {
-                                number: seatNumber,
-                                status: "BOOKED",
-                                showTimeId: showTimeId,
-                                bookingId: booking.id,
-                            },
-                        })
-                    )
-                );
-    
-                return { booking, seats };
-            });
-    
-            // Lấy thông tin chi tiết booking
-            let bookingWithDetails = await prisma.booking.findUnique({
-                where: { id: bookingResult.booking.id },
-                include: {
-                    user: true,
-                    showTime: true,
-                    seats: true,
-                    promotion: true,
-                },
-            });
-    
-            return bookingWithDetails;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    },
+      // Tạo booking với promotionId
+      const booking = await prisma.booking.create({
+        data: {
+          userId,
+          showTimeId: showTimeIdInt,
+          totalPrice,
+          status: "PENDING",
+          promotionId: promotionId,
+        },
+        include: {
+          promotion: true,
+          seats: true,
+          showTime: {
+            include: {
+              movie: true,
+            },
+          },
+        },
+      });
+
+      // Cập nhật trạng thái ghế
+      await prisma.seat.updateMany({
+        where: {
+          showTimeId: showTimeIdInt,
+          number: { in: seatNumbers },
+        },
+        data: {
+          status: "BOOKED",
+          bookingId: booking.id,
+        },
+      });
+
+      return res.json({
+        data: booking,
+        message: "Đặt vé thành công",
+      });
+    } catch (error) {
+      console.error("Booking error:", error);
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Update booking
+  Update: async function (req, res) {
+    try {
+      const booking = await prisma.booking.update({
+        where: { id: parseInt(req.params.id) },
+        data: req.body,
+      });
+      return res.json({ data: booking });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Delete booking
+  Delete: async function (req, res) {
+    try {
+      await prisma.booking.delete({
+        where: { id: parseInt(req.params.id) },
+      });
+      return res.json({ message: "Xóa đơn đặt vé thành công" });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  GetMyBookings: async function (req, res) {
+    try {
+      // Lấy userId từ token đã được decode trong middleware
+      const userId = parseInt(req.user.id);
+      console.log("Getting bookings for userId:", userId);
+
+      // Lấy danh sách booking
+      const bookings = await prisma.booking.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          showTime: {
+            include: {
+              movie: true,
+            },
+          },
+          seats: true,
+          promotion: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      console.log("Found bookings:", bookings);
+
+      return res.json({
+        data: bookings,
+      });
+    } catch (error) {
+      console.error("Error in GetMyBookings:", error);
+      return res.status(500).json({
+        message: "Lỗi server: " + error.message,
+      });
+    }
+  },
 };
+
+module.exports = bookingController;

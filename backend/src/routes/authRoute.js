@@ -1,40 +1,60 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 var jwt = require("jsonwebtoken");
-let { CreateSuccessRes } = require('../utils/responseHandler');
-let authController = require('../controllers/authController');
-const { CheckAuth } = require('../utils/check_auth');
+let { CreateSuccessRes } = require("../utils/responseHandler");
+let authController = require("../controllers/authController");
+const { CheckAuth } = require("../utils/check_auth");
+const authMiddleware = require("../middleware/authMiddleware");
 require("dotenv").config();
 
-router.post('/register', async function (req, res, next) {
+router.post("/register", async function (req, res, next) {
   try {
     let body = req.body;
     let newUser = await authController.CreateAnUser(
-      body.email, body.password, body.name, body.role
+      body.email,
+      body.password,
+      body.name,
+      body.role
     );
-    CreateSuccessRes(res, jwt.sign({
-       id: newUser.id, email: newUser.email,
-       expire: (new Date(Date.now() + 60 * 60 * 1000)).getTime()
-      }, process.env.JWT_SECRET), 200);
+    CreateSuccessRes(
+      res,
+      jwt.sign(
+        {
+          id: newUser.id,
+          email: newUser.email,
+          expire: new Date(Date.now() + 60 * 60 * 1000).getTime(),
+        },
+        process.env.JWT_SECRET
+      ),
+      200
+    );
   } catch (error) {
     next(error);
   }
 });
 
-router.post('/login', async function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   try {
     let { email, password } = req.body;
     let user = await authController.CheckLogin(email, password);
-    CreateSuccessRes(res, jwt.sign({ 
-      id: user.id, email: user.email,
-      expire: (new Date(Date.now() + 60 * 60 * 1000)).getTime()
-    }, process.env.JWT_SECRET), 200);
+    CreateSuccessRes(
+      res,
+      jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          expire: new Date(Date.now() + 60 * 60 * 1000).getTime(),
+        },
+        process.env.JWT_SECRET
+      ),
+      200
+    );
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/me', CheckAuth, async function (req, res, next) {
+router.get("/me", CheckAuth, async function (req, res, next) {
   try {
     let user = await authController.Me(req.user.id);
     CreateSuccessRes(res, user, 200);
@@ -43,7 +63,7 @@ router.get('/me', CheckAuth, async function (req, res, next) {
   }
 });
 
-router.put('/:id', CheckAuth, async function (req, res, next) {
+router.put("/:id", CheckAuth, async function (req, res, next) {
   try {
     let user = await authController.Update(req);
     CreateSuccessRes(res, user, 200);
@@ -52,7 +72,7 @@ router.put('/:id', CheckAuth, async function (req, res, next) {
   }
 });
 
-router.delete('/:id', CheckAuth, async function (req, res, next) {
+router.delete("/:id", CheckAuth, async function (req, res, next) {
   try {
     let user = await authController.Delete(req);
     CreateSuccessRes(res, user, 200);
@@ -60,5 +80,7 @@ router.delete('/:id', CheckAuth, async function (req, res, next) {
     next(error);
   }
 });
+
+router.put("/change-password", authMiddleware, authController.ChangePassword);
 
 module.exports = router;

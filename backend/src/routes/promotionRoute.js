@@ -1,11 +1,12 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-let promotionController = require('../controllers/promotionController');
-let { CreateSuccessRes } = require('../utils/responseHandler');
-const { CheckAuth, CheckRole } = require('../utils/check_auth');
-require('dotenv').config();
+let promotionController = require("../controllers/promotionController");
+let { CreateSuccessRes } = require("../utils/responseHandler");
+const { CheckAuth, CheckRole } = require("../utils/check_auth");
+const authMiddleware = require("../middleware/authMiddleware");
+require("dotenv").config();
 
-router.get('/', async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   try {
     let promotions = await promotionController.GetAll();
     CreateSuccessRes(res, promotions, 200);
@@ -14,7 +15,7 @@ router.get('/', async function (req, res, next) {
   }
 });
 
-router.post('/', [CheckAuth, CheckRole], async function (req, res, next) {
+router.post("/", [CheckAuth, CheckRole], async function (req, res, next) {
   try {
     let body = req.body;
     let newPromotion = await promotionController.Create(body);
@@ -24,7 +25,7 @@ router.post('/', [CheckAuth, CheckRole], async function (req, res, next) {
   }
 });
 
-router.put('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+router.put("/:id", [CheckAuth, CheckRole], async function (req, res, next) {
   try {
     let promotion = await promotionController.Update(req);
     CreateSuccessRes(res, promotion, 200);
@@ -33,7 +34,7 @@ router.put('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
   }
 });
 
-router.delete('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+router.delete("/:id", [CheckAuth, CheckRole], async function (req, res, next) {
   try {
     let promotion = await promotionController.Delete(req);
     CreateSuccessRes(res, promotion, 200);
@@ -41,5 +42,7 @@ router.delete('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
     next(error);
   }
 });
+
+router.get("/check/:code", authMiddleware, promotionController.CheckCode);
 
 module.exports = router;

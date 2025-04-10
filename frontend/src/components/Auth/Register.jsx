@@ -6,7 +6,6 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-import MovieIcon from "@mui/icons-material/Movie";
 
 const Register = () => {
   const [formData, setFormData] = useState({

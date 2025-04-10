@@ -1,53 +1,15 @@
-var express = require("express");
-var router = express.Router();
-let movieController = require("../controllers/movieController");
-let { CheckAuth, CheckRole } = require("../utils/check_auth");
-let { CreateSuccessRes } = require("../utils/responseHandler");
-require('dotenv').config();
+const express = require("express");
+const router = express.Router();
+const movieController = require("../controllers/movieController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/", async (req, res, next) => {
-  try {
-    let movies = await movieController.GetAll();
-    CreateSuccessRes(res, movies, 200);
-  } catch (error) {
-    next(error);
-  }
-});
+// Routes công khai - không cần đăng nhập
+router.get("/", movieController.GetAll);
+router.get("/:id", movieController.GetById);
 
-router.get("/:id", CheckAuth, async (req, res, next) => {
-  try {
-    let movie = await movieController.GetById(req);
-    CreateSuccessRes(res, movie, 200);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/", [CheckAuth, CheckRole], async (req, res, next) => {
-  try {
-    let movie = await movieController.Create(req);
-    CreateSuccessRes(res, movie, 201);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/:id", [CheckAuth, CheckRole], async (req, res, next) => {
-  try {
-    let movie = await movieController.Update(req);
-    CreateSuccessRes(res, movie, 200);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.delete("/:id", [CheckAuth, CheckRole], async (req, res) => {
-  try {
-    let movie = await movieController.Delete(req);
-    CreateSuccessRes(res, movie, 200);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Routes cần xác thực
+router.post("/", authMiddleware, movieController.Create);
+router.put("/:id", authMiddleware, movieController.Update);
+router.delete("/:id", authMiddleware, movieController.Delete);
 
 module.exports = router;

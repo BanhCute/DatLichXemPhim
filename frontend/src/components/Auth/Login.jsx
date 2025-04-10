@@ -7,7 +7,7 @@ import {
   Container,
   Paper,
 } from "@mui/material";
-
+import { Link } from "react-router-dom";
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -24,16 +24,23 @@ const Login = () => {
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        console.log("📩 Response thô:", res);
         if (!res.ok) {
           throw new Error("Đăng nhập không thành công");
         }
         return res.json();
       })
       .then((data) => {
-        console.log("✅ Đăng nhập thành công! Dữ liệu trả về:", data);
         localStorage.setItem("token", data.data);
-        window.location.href = "/movies";
+
+        // Kiểm tra có URL redirect không
+        const redirectUrl = localStorage.getItem("redirectUrl");
+        if (redirectUrl) {
+          localStorage.removeItem("redirectUrl"); // Xóa URL đã lưu
+          window.location.href = redirectUrl;
+        } else {
+          window.location.href = "/movies";
+        }
+
         window.dispatchEvent(new Event("storage"));
       })
       .catch((err) => {
@@ -43,34 +50,32 @@ const Login = () => {
 
   return (
     <Box
-  sx={{
-    position: "fixed",
-    top: "64px", // nếu có navbar cao 64px
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: 'url("/images/anhNen/anhNenAuth.jpg")',
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    px: 2,
-  }}
->
-
-
+      sx={{
+        position: "fixed",
+        top: "64px", // nếu có navbar cao 64px
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: 'url("/images/anhNen/anhNenAuth.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+      }}
+    >
       <Container maxWidth="sm">
-  <Paper
-    elevation={10}
-    sx={{
-      p: 5,
-      backgroundColor: "rgba(0, 0, 0, 0.85)",
-      borderRadius: 4,
-      color: "#fff",
-      width: "100%",
-    }}
-  >
+        <Paper
+          elevation={10}
+          sx={{
+            p: 5,
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            borderRadius: 4,
+            color: "#fff",
+            width: "100%",
+          }}
+        >
           <Typography
             component="h1"
             variant="h4"
@@ -130,6 +135,12 @@ const Login = () => {
             >
               Đăng nhập
             </Button>
+            <Typography variant="h6" align="center" sx={{ mt: 2 }}>
+              Bạn chưa có tài khoản?{" "}
+              <Link nk to="/register" style={{ color: "#e50914" }}>
+                Đăng ký
+              </Link>
+            </Typography>
           </Box>
         </Paper>
       </Container>

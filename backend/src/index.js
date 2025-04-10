@@ -31,6 +31,15 @@ app.use("/api/movie-genres", movieGenreRoutes); // Các API liên quan đến th
 app.use("/api/payments", paymentRoutes); // Các API liên quan đến thanh toán
 app.use("/api/promotions", promotionRoutes); // Các API liên quan đến khuyến mãi
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: "Có lỗi xảy ra",
+    error: err.message,
+  });
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

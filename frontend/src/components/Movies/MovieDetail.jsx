@@ -10,41 +10,87 @@ import {
   Paper,
   Box,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import ShowTimesList from "../ShowTimes/ShowTimesList";
 
 const MovieDetail = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("🔑 Token:", token);
-
-    // Nếu backend lỡ trả thẳng data = movie thay vì data: { movie }
-    fetch(`http://localhost:5000/api/movies/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("👉 data trả về:", data);
-        if (data.data) {
-          setMovie(data.data);
-        } else {
-          setMovie(data); // fallback nếu API thay đổi
+    setLoading(true); // Bắt đầu loading
+    fetch(`http://localhost:5000/api/movies/${id}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Không thể tải thông tin phim");
         }
+        return res.json();
       })
-
-      .catch((err) => console.error("❌ Error fetching movie:", err));
+      .then((data) => {
+        console.log("Movie data:", data);
+        // Kiểm tra cấu trúc data và set đúng dữ liệu
+        if (data && (data.data || data)) {
+          setMovie(data.data || data);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, [id]);
 
-  if (!movie || !movie.title) {
+  if (loading) {
     return (
-      <Typography variant="h6" sx={{ mt: 4, textAlign: "center" }}>
-        ⏳ Đang tải thông tin phim...
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          ⏳ Đang tải thông tin phim...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <Typography variant="h6" color="error">
+          ❌ {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <Typography variant="h6">😢 Không tìm thấy thông tin phim</Typography>
+      </Box>
     );
   }
 
@@ -70,9 +116,9 @@ const MovieDetail = () => {
 
           {/* Thông tin bên phải */}
           <Grid item xs={12} md={8}>
-            <Stack spacing={2}>
-              <Typography variant="h4" fontWeight="bold">
-                🎬 {movie.title}
+            <Stack spacing={3}>
+              <Typography variant="h4" component="h1">
+                {movie.title}
               </Typography>
 
               <Box>
@@ -101,7 +147,7 @@ const MovieDetail = () => {
 
         <Divider sx={{ mb: 2 }} />
 
-        <ShowTimesList movieId={id} />
+        <ShowTimesList movieId={id} requireAuth={true} />
       </Box>
     </Container>
   );
