@@ -16,24 +16,28 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  console.log("🔑 Token:", token);
+    const token = localStorage.getItem("token");
+    console.log("🔑 Token:", token);
 
-  fetch(`http://localhost:5000/api/movies/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-  .then((res) => res.json())
-  .then((data) => {
-    console.log("📦 Dữ liệu từ API:", data);
-    setMovie(data.data || data);
-  })
-    .catch((err) => console.error("Error fetching movie:", err));
-}, [id]);
+    fetch(`http://localhost:5000/api/movies/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("📦 Dữ liệu từ API:", data);
+        setMovie(data.data || data);
+      })
+      .catch((err) => console.error("Error fetching movie:", err));
+  }, [id]);
 
-
-  if (!movie) return <Typography variant="h6" sx={{ mt: 4, textAlign: "center" }}>⏳ Đang tải thông tin phim...</Typography>;
+  if (!movie)
+    return (
+      <Typography variant="h6" sx={{ mt: 4, textAlign: "center" }}>
+        ⏳ Đang tải thông tin phim...
+      </Typography>
+    );
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -43,7 +47,10 @@ const MovieDetail = () => {
             <CardMedia
               component="img"
               height="500"
-              image={movie.imageUrl || "https://via.placeholder.com/400x500?text=No+Image"}
+              image={
+                movie.imageUrl ||
+                "https://via.placeholder.com/400x500?text=No+Image"
+              }
               alt={movie.title}
               sx={{ borderRadius: 2 }}
             />
@@ -55,15 +62,20 @@ const MovieDetail = () => {
             🎬 {movie.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" paragraph>
-            {movie.description}
+          <Typography variant="body1" color="black">
+            📌 Thông tin phim:
           </Typography>
 
-          <Paper elevation={3} sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9" }}>
+          <Paper
+            elevation={3}
+            sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9" }}
+          >
             <Typography variant="h6" fontWeight="bold" gutterBottom>
-              📌 Thông tin phim: 
+              {movie.description}
             </Typography>
-            <Typography variant="body2">⏱ Thời lượng: {movie.duration} phút</Typography>
+            <Typography variant="body2">
+              ⏱ Thời lượng: {movie.duration} phút
+            </Typography>
           </Paper>
 
           <Divider sx={{ my: 4 }} />
