@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -8,11 +8,22 @@ import {
   Paper,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: "",
+    email: localStorage.getItem("registeredEmail") || "",
     password: "",
   });
+  const [error, setError] = useState("");
+
+  // Xóa email đã lưu sau khi đã load
+  useEffect(() => {
+    const registeredEmail = localStorage.getItem("registeredEmail");
+    if (registeredEmail) {
+      setFormData((prev) => ({ ...prev, email: registeredEmail }));
+      localStorage.removeItem("registeredEmail");
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,21 +41,39 @@ const Login = () => {
         return res.json();
       })
       .then((data) => {
+        // Lưu token
         localStorage.setItem("token", data.data);
 
-        // Kiểm tra có URL redirect không
-        const redirectUrl = localStorage.getItem("redirectUrl");
-        if (redirectUrl) {
-          localStorage.removeItem("redirectUrl"); // Xóa URL đã lưu
-          window.location.href = redirectUrl;
+        // Lấy thông tin user để kiểm tra role
+        return fetch("http://localhost:5000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${data.data}`,
+          },
+        });
+      })
+      .then((res) => res.json())
+      .then((userData) => {
+        // Lưu role user
+        localStorage.setItem("userRole", userData.data.role);
+
+        // Chuyển hướng dựa vào role
+        if (userData.data.role === "ADMIN") {
+          window.location.href = "/admin/movies"; // Trang quản lý phim cho admin
         } else {
-          window.location.href = "/movies";
+          // Redirect user thường
+          const redirectUrl = localStorage.getItem("redirectUrl");
+          if (redirectUrl) {
+            localStorage.removeItem("redirectUrl");
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = "/movies";
+          }
         }
 
         window.dispatchEvent(new Event("storage"));
       })
       .catch((err) => {
-        alert(err.message);
+        setError(err.message);
       });
   };
 

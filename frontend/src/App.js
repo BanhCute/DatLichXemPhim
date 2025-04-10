@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import Navbar from "./components/Layout/Navbar";
 import Footer from "./components/Layout/Footer"; // 👉 import Footer ở đây
@@ -15,6 +15,18 @@ import Profile from "./components/User/Profile";
 import Home from "./components/Home/Home";
 import BookingSuccess from "./components/Bookings/BookingSuccess";
 import BookingHistory from "./components/Bookings/BookingHistory";
+import AdminMovies from "./components/Admin/AdminMovies";
+
+// Thêm route bảo vệ cho admin
+const AdminRoute = ({ children }) => {
+  const userRole = localStorage.getItem("userRole");
+
+  if (userRole !== "ADMIN") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -29,6 +41,16 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin/movies"
+              element={
+                <AdminRoute>
+                  <AdminMovies />
+                </AdminRoute>
+              }
+            />
 
             {/* Protected Routes (sau này thêm auth check) */}
             <Route path="/movies" element={<MoviesList />} />

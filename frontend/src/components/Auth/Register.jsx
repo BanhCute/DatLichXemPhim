@@ -1,23 +1,57 @@
 import React, { useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-} from "@mui/material";
+import { Box, TextField, Button, Typography, Paper } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Thông tin đăng ký:", formData);
+    setError("");
+
+    // Kiểm tra mật khẩu xác nhận
+    if (formData.password !== formData.confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Đăng ký thất bại");
+      }
+
+      // Hiển thị thông báo thành công
+      alert("Đăng ký tài khoản thành công!");
+
+      // Lưu email vào localStorage để điền sẵn form login
+      localStorage.setItem("registeredEmail", formData.email);
+
+      // Chuyển hướng về trang login
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -49,27 +83,41 @@ const Register = () => {
         }}
       >
         <Box
-  sx={{
-    display: "flex",
-    justifyContent: "center",
-    mb: 2,
-  }}
->
-  <Typography
-    component="h1"
-    variant="h4"
-    align="center"
-    gutterBottom
-    sx={{ fontWeight: "bold", letterSpacing: 1, color: "#fff" }}
-  >
-    🎬 RẠP PHIM LGTV
-  </Typography>
-</Box>
-
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            mb: 2,
+          }}
+        >
+          <Typography
+            component="h1"
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: "bold", letterSpacing: 1, color: "#fff" }}
+          >
+            🎬 RẠP PHIM LGTV
+          </Typography>
+        </Box>
 
         <Typography variant="h6" align="center" sx={{ mb: 2, color: "#ccc" }}>
           Đăng ký tài khoản của bạn
         </Typography>
+
+        {error && (
+          <Typography
+            color="error"
+            align="center"
+            sx={{
+              mb: 2,
+              backgroundColor: "rgba(255,0,0,0.1)",
+              p: 1,
+              borderRadius: 1,
+            }}
+          >
+            {error}
+          </Typography>
+        )}
 
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
@@ -82,9 +130,7 @@ const Register = () => {
             InputProps={{ style: { color: "#fff" } }}
             InputLabelProps={{ style: { color: "#ccc" } }}
             value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <TextField
             margin="normal"

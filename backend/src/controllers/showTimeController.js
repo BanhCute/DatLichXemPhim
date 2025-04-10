@@ -65,9 +65,9 @@ const showTimeController = {
     }
   },
 
-  Create: async function (req) {
+  Create: async function (body) {
     try {
-      let { movieId, startTime, endTime, room, price } = req.body;
+      let { movieId, startTime, endTime, room, price } = body;
       let showTime = await prisma.showTime.create({
         data: {
           movieId,
