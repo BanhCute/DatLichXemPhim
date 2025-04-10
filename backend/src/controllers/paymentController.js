@@ -1,15 +1,23 @@
 let { PrismaClient } = require("@prisma/client");
-const { Update } = require("./authController");
 
 const prisma = new PrismaClient();
 
 module.exports = {
-  GetAll: async function () {
-    return await prisma.payment.findMany({
+  GetAll: async function (userId) {
+    const userPayments = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
       include: {
-        booking: true,
+        bookings: {
+          include: {
+            payments: true,
+          },
+        },
       },
     });
+    const payments = userPayments.bookings.flatMap(booking => booking.payments);
+    return payments;
   },
 
   Create: async function (body) {
