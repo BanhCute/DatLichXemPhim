@@ -24,4 +24,22 @@ router.post('/', [CheckAuth, CheckRole], async function (req, res, next) {
   }
 });
 
+router.put('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let promotion = await promotionController.Update(req);
+    CreateSuccessRes(res, promotion, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let promotion = await promotionController.Delete(req);
+    CreateSuccessRes(res, promotion, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

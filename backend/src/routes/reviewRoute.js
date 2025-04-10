@@ -3,6 +3,7 @@ var router = express.Router();
 let reviewController = require('../controllers/reviewController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth } = require('../utils/check_auth');
+const { ro } = require('date-fns/locale');
 require('dotenv').config();
 
 router.get('/', CheckAuth, async function (req, res, next) {
@@ -19,6 +20,24 @@ router.post('/', CheckAuth, async function (req, res, next) {
     let body = req.body;
     let newReview = await reviewController.Create(body);
     CreateSuccessRes(res, newReview, 201);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/:id', CheckAuth, async function (req, res, next) {
+  try {
+    let review = await reviewController.Update(req);
+    CreateSuccessRes(res, review, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', CheckAuth, async function (req, res, next) {
+  try {
+    let review = await reviewController.Delete(req);
+    CreateSuccessRes(res, review, 200);
   } catch (error) {
     next(error);
   }

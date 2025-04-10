@@ -58,18 +58,30 @@ module.exports = {
 
     Delete: async function (req) {
         try {
-            let showTimes = await prisma.showTime.findMany({
-                where: { movieId: parseInt(req.params.id) },
+            const movieId = parseInt(req.params.id);
+            const movieGenres = await prisma.movieGenre.findMany({
+                where: { movieId: movieId },
             });
-
-            if (showTimes.length > 0) {
-                throw new Error("Không thể xóa phim đang có lịch chiếu");
+            if (movieGenres.length > 0) {
+                throw new Error("Không thể xóa phim vì đang liên kết với thể loại");
             }
-
-            let deletedMovie = await prisma.movie.delete({
-                where: { id: parseInt(req.params.id) },
+            let showTimes = await prisma.showTime.findMany({
+                where: { movieId: movieId },
             });
-
+            if (showTimes.length > 0) {
+                const bookings = await prisma.booking.findMany({
+                    where: {
+                        showTimeId: { in: showTimes.map(st => st.id) },
+                    },
+                });
+                if (bookings.length > 0) {
+                    throw new Error("Không thể xóa phim vì đã có người đặt vé");
+                }
+                throw new Error("Không thể xóa phim vì phim đang có lịch chiếu");
+            }
+            let deletedMovie = await prisma.movie.delete({
+                where: { id: movieId },
+            });
             return deletedMovie;
         } catch (error) {
             throw new Error(error.message);

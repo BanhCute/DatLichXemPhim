@@ -1,4 +1,5 @@
 let { PrismaClient } = require("@prisma/client");
+const { Update } = require("./authController");
 
 const prisma = new PrismaClient();
 
@@ -20,4 +21,29 @@ module.exports = {
       throw new Error(error.message);
     }
   },
+
+  Update: async function (req) {
+    try {
+      let { movieId, genreId } = req.body;
+      let movieGenre = await prisma.movieGenre.update({
+        where: { id: parseInt(req.params.id) },
+        data: { movieId, genreId },
+      });
+      return movieGenre;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  Delete: async function (req) {
+    try {
+      let movieGenreId = parseInt(req.params.id);
+      let deletedMovieGenre = await prisma.movieGenre.delete({
+        where: { id: movieGenreId },
+      });
+      return deletedMovieGenre;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 };

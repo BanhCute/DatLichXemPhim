@@ -26,6 +26,38 @@ module.exports = {
     }
   },
 
+  Update: async function (req) {
+    try {
+      let { email, name, role } = req.body;
+      let userId = parseInt(req.params.id);
+
+      let updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          email,
+          name,
+          role,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  Delete: async function (req) {
+    try {
+      let userId = parseInt(req.params.id);
+      let deletedUser = await prisma.user.delete({
+        where: { id: userId },
+      });
+      return deletedUser;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
   CheckLogin: async function (email, password) {
     let user = await prisma.user.findUnique({
       where: { email: email },
