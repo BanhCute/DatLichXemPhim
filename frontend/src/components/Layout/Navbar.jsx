@@ -53,9 +53,6 @@ const Navbar = () => {
               Đăng nhập
             </Button>
           )}
-          <Button color="inherit" component={Link} to="/register">
-            Đăng ký
-          </Button>
         </Box>
       </Toolbar>
     </AppBar>
