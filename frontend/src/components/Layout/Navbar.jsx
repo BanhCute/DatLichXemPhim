@@ -96,17 +96,6 @@ const Navbar = () => {
               Đăng nhập
             </Button>
           )}
-          <Button
-            component={Link}
-            to="/register"
-            sx={{
-              color: "#fff",
-              mx: 1,
-              "&:hover": { color: "#e50914" },
-            }}
-          >
-            Đăng ký
-          </Button>
         </Box>
       </Toolbar>
     </AppBar>
