@@ -12,15 +12,8 @@ const bookingController = {
             include: {
               movie: true,
             },
-          },
-          seats: true,
-        },
-      });
-      return res.json({ data: bookings });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
+        });
+    },
 
   // Get booking by id
   GetById: async function (req, res) {
