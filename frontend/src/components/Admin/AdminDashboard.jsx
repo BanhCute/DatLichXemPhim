@@ -9,18 +9,22 @@ import {
   Paper,
   Tabs,
   Tab,
+  Box,
+  Fade,
 } from "@mui/material";
 import MovieIcon from "@mui/icons-material/Movie";
 import CategoryIcon from "@mui/icons-material/Category";
 import PeopleIcon from "@mui/icons-material/People";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { Link, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [tabValue, setTabValue] = useState(0); // Set giá trị tab hiện tại
+  const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
     switch (newValue) {
       case 0:
         navigate("/admin");
@@ -40,146 +44,210 @@ const AdminDashboard = () => {
       case 5:
         navigate("/admin/showtimes");
         break;
+      default:
+        break;
     }
   };
 
   const menuItems = [
     {
       title: "Quản lý Phim",
-      icon: <MovieIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      icon: <MovieIcon sx={{ fontSize: 60, color: "#fff" }} />,
       description: "Thêm, sửa, xóa phim và quản lý thông tin phim",
       link: "/admin/movies",
-      color: "#141414",
+      gradient: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
     },
     {
       title: "Quản lý Thể Loại",
-      icon: <CategoryIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      icon: <CategoryIcon sx={{ fontSize: 60, color: "#fff" }} />,
       description: "Quản lý các thể loại phim",
       link: "/admin/genres",
-      color: "#141414",
+      gradient: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
     },
     {
       title: "Quản lý Người Dùng",
-      icon: <PeopleIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      icon: <PeopleIcon sx={{ fontSize: 60, color: "#fff" }} />,
       description: "Quản lý thông tin và phân quyền người dùng",
       link: "/admin/users",
-      color: "#141414",
+      gradient: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
     },
     {
       title: "Quản lý Đặt Vé",
-      icon: <ReceiptIcon sx={{ fontSize: 60, color: "#e50914" }} />,
-      description: "Xem thông tin đặt vé của người dùng",
+      icon: <ReceiptIcon sx={{ fontSize: 60, color: "#fff" }} />,
+      description: "Xem và quản lý thông tin đặt vé của người dùng",
       link: "/admin/bookings",
-      color: "#141414",
+      gradient: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
     },
     {
       title: "Quản lý Suất Chiếu",
-      icon: <ReceiptIcon sx={{ fontSize: 60, color: "#e50914" }} />,
-      description: "Xem thông tin đặt vé của người dùng",
+      icon: <ShowChartIcon sx={{ fontSize: 60, color: "#fff" }} />,
+      description: "Quản lý lịch chiếu phim tại các rạp",
       link: "/admin/showtimes",
+      gradient: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
     },
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Admin Navigation */}
-      <Paper sx={{ mb: 3 }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          textColor="primary"
-          indicatorColor="primary"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1c2526 0%, #2c3e50 100%)",
+        py: 6,
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Admin Navigation */}
+        <Paper
           sx={{
-            "& .MuiTab-root": {
-              color: "#666",
-              "&.Mui-selected": {
-                color: "#e50914",
-              },
-            },
-            "& .MuiTabs-indicator": {
-              backgroundColor: "#e50914",
-            },
+            mb: 5,
+            borderRadius: 3,
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+            overflow: "hidden",
           }}
         >
-          <Tab label="DASHBOARD" />
-          <Tab label="QUẢN LÝ PHIM" />
-          <Tab label="QUẢN LÝ THỂ LOẠI" />
-          <Tab label="QUẢN LÝ NGƯỜI DÙNG" />
-          <Tab label="QUẢN LÝ ĐẶT VÉ" />
-        </Tabs>
-      </Paper>
-
-      <Typography
-        variant="h4"
-        sx={{
-          mb: 4,
-          fontWeight: "bold",
-          color: "#e50914",
-          textAlign: "center",
-        }}
-      >
-        Trang Quản Trị
-      </Typography>
-
-      <Grid container spacing={4}>
-        {menuItems.map((item, index) => (
-          <Grid item xs={12} sm={6} key={index}>
-            <Card
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: item.color,
-                color: "white",
-                transition: "transform 0.2s",
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            textColor="inherit"
+            indicatorColor="primary"
+            sx={{
+              "& .MuiTab-root": {
+                fontFamily: "'Poppins', sans-serif",
+                fontWeight: "medium",
+                color: "#666",
+                textTransform: "none",
+                fontSize: "1.1rem",
+                padding: "12px 24px",
+                transition: "all 0.3s ease",
                 "&:hover": {
-                  transform: "scale(1.02)",
+                  color: "#e50914",
+                  backgroundColor: "rgba(229, 9, 20, 0.05)",
                 },
-              }}
-            >
-              <CardContent
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  textAlign: "center",
-                  p: 4,
-                }}
-              >
-                {item.icon}
-                <Typography
-                  variant="h5"
-                  component="h2"
-                  sx={{ mt: 2, fontWeight: "bold" }}
-                >
-                  {item.title}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ mt: 2, mb: 3, color: "#ccc" }}
-                >
-                  {item.description}
-                </Typography>
-                <Button
-                  component={Link}
-                  to={item.link}
-                  variant="contained"
+                "&.Mui-selected": {
+                  color: "#e50914",
+                  fontWeight: "bold",
+                },
+              },
+              "& .MuiTabs-indicator": {
+                backgroundColor: "#e50914",
+                height: 4,
+                borderRadius: "4px 4px 0 0",
+              },
+            }}
+          >
+            <Tab label="DASHBOARD" icon={<ShowChartIcon />} />
+            <Tab label="QUẢN LÝ PHIM" icon={<MovieIcon />} />
+            <Tab label="QUẢN LÝ THỂ LOẠI" icon={<CategoryIcon />} />
+            <Tab label="QUẢN LÝ NGƯỜI DÙNG" icon={<PeopleIcon />} />
+            <Tab label="QUẢN LÝ ĐẶT VÉ" icon={<ReceiptIcon />} />
+            <Tab label="QUẢN LÝ SUẤT CHIẾU" icon={<ShowChartIcon />} />
+          </Tabs>
+        </Paper>
+
+        {/* Header */}
+        <Typography
+          variant="h3"
+          sx={{
+            mb: 6,
+            fontWeight: "bold",
+            color: "#fff",
+            textAlign: "center",
+            fontFamily: "'Poppins', sans-serif",
+            textShadow: "2px 2px 8px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          Trang Quản Trị
+        </Typography>
+
+        {/* Menu Grid */}
+        <Grid container spacing={4}>
+          {menuItems.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Fade in timeout={500 + index * 200}>
+                <Card
                   sx={{
-                    mt: "auto",
-                    backgroundColor: "#e50914",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    background: item.gradient,
+                    color: "white",
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.3)",
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
                     "&:hover": {
-                      backgroundColor: "#b81d24",
+                      transform: "translateY(-10px)",
+                      boxShadow: "0 12px 30px rgba(0, 0, 0, 0.4)",
                     },
                   }}
                 >
-                  Truy cập
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      p: 4,
+                      flexGrow: 1,
+                    }}
+                  >
+                    {item.icon}
+                    <Typography
+                      variant="h5"
+                      component="h2"
+                      sx={{
+                        mt: 3,
+                        fontWeight: "bold",
+                        fontFamily: "'Poppins', sans-serif",
+                        color: "#fff",
+                      }}
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        mt: 2,
+                        mb: 3,
+                        color: "rgba(255, 255, 255, 0.8)",
+                        fontFamily: "'Roboto', sans-serif",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {item.description}
+                    </Typography>
+                    <Button
+                      component={Link}
+                      to={item.link}
+                      variant="contained"
+                      sx={{
+                        mt: "auto",
+                        backgroundColor: "#fff",
+                        color: "#e50914",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        borderRadius: 2,
+                        padding: "10px 24px",
+                        fontFamily: "'Roboto', sans-serif",
+                        "&:hover": {
+                          backgroundColor: "#e50914",
+                          color: "#fff",
+                          transform: "scale(1.05)",
+                          transition: "all 0.3s ease",
+                        },
+                      }}
+                    >
+                      Truy cập
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Fade>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
