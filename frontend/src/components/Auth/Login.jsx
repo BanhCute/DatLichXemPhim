@@ -17,12 +17,14 @@ const Login = () => {
       body: JSON.stringify(formData),
     })
       .then((res) => {
+        console.log("📩 Response thô:", res)
         if (!res.ok) {
           throw new Error("Đăng nhập không thành công");
         }
         return res.json();
       })
       .then((data) => {
+        console.log("✅ Đăng nhập thành công! Dữ liệu trả về:", data)
         localStorage.setItem("token", data.data);
         window.location.href = "/movies";
 
