@@ -7,9 +7,9 @@ module.exports = {
     return await prisma.promotion.findMany();
   },
 
-  Create: async function (req) {
+  Create: async function (body) {
     try {
-      let { code, discount, startDate, endDate } = req.body;
+      let { code, discount, startDate, endDate } = body;
       let promotion = await prisma.promotion.create({
         data: { code, discount, startDate, endDate },
       });

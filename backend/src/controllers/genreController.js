@@ -7,11 +7,10 @@ module.exports = {
     return await prisma.genre.findMany();
   },
 
-  Create: async function (req) {
+  Create: async function (name) {
     try {
-        let { name } = req.body;
         let genre = await prisma.genre.create({
-            data: { name },
+            data: { name: name },
         });
         return genre;
     } catch (error) {

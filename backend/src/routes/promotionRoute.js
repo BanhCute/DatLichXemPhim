@@ -3,6 +3,7 @@ var router = express.Router();
 let promotionController = require('../controllers/promotionController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth, CheckRole } = require('../utils/check_auth');
+require('dotenv').config();
 
 router.get('/', async function (req, res, next) {
   try {

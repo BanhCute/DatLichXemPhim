@@ -3,6 +3,7 @@ var router = express.Router();
 let reviewController = require('../controllers/reviewController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth } = require('../utils/check_auth');
+require('dotenv').config();
 
 router.get('/', CheckAuth, async function (req, res, next) {
   try {

@@ -9,9 +9,9 @@ module.exports = {
     });
   },
 
-  Create: async function (req) {
+  Create: async function (body) {
     try {
-      let { movieId, genreId } = req.body;
+      let { movieId, genreId } = body;
       let movieGenre = await prisma.movieGenre.create({
         data: { movieId, genreId },
       });

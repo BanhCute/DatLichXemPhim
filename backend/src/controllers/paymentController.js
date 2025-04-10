@@ -11,9 +11,9 @@ module.exports = {
     });
   },
 
-  Create: async function (req) {
+  Create: async function (body) {
     try {
-      let { bookingId, amount, method, status } = req.body;
+      let { bookingId, amount, method, status } = body;
       let payment = await prisma.payment.create({
         data: { bookingId, amount, method, status },
       });

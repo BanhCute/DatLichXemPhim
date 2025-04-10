@@ -3,6 +3,7 @@ var router = express.Router();
 let paymentController = require('../controllers/paymentController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth, CheckRole } = require('../utils/check_auth');
+require('dotenv').config();
 
 router.get('/', CheckAuth, async function (req, res, next) {
   try {

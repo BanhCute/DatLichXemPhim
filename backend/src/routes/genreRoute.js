@@ -3,6 +3,7 @@ var router = express.Router();
 let genreController = require('../controllers/genreController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
 const { CheckAuth, CheckRole } = require('../utils/check_auth');
+require("dotenv").config();
 
 router.get('/', async function (req, res, next) {
   try {
@@ -16,7 +17,7 @@ router.get('/', async function (req, res, next) {
 router.post('/', [CheckAuth, CheckRole], async function (req, res, next) {
   try {
     let body = req.body;
-    let newGenre = await genreController.Create(body);
+    let newGenre = await genreController.Create(body.name);
     CreateSuccessRes(res, newGenre, 201);
   } catch (error) {
     next(error);

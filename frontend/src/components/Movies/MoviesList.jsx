@@ -10,8 +10,6 @@ import {
 
 import { Link } from "react-router-dom";
 
-
-
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
 

@@ -1,6 +1,4 @@
 let { PrismaClient } = require("@prisma/client");
-const { GetById } = require("./movieController");
-require("dotenv").config();
 
 const prisma = new PrismaClient();
 

@@ -3,6 +3,7 @@ var router = express.Router();
 let { CheckAuth , CheckRole } = require("../utils/check_auth");
 let showTimeController = require("../controllers/showTimeController");
 let { CreateSuccessRes } = require("../utils/responseHandler");
+require('dotenv').config();
 
 router.get("/", async (req, res, next) => {
   try {

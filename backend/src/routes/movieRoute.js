@@ -3,6 +3,7 @@ var router = express.Router();
 let movieController = require("../controllers/movieController");
 let { CheckAuth, CheckRole } = require("../utils/check_auth");
 let { CreateSuccessRes } = require("../utils/responseHandler");
+require('dotenv').config();
 
 router.get("/", async (req, res, next) => {
   try {

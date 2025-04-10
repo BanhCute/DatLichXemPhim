@@ -15,9 +15,26 @@ const Profile = () => {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    // Fetch user bookings
-    const userId = 1; // Sẽ lấy từ context/redux sau
-    fetch(`http://localhost:5000/api/bookings/user/${userId}`)
+    let user;
+    fetch("http://localhost:5000/api/auth/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        return res.json();
+      })
+      .then((data) => { 
+        user = data.data;
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
+    fetch(`http://localhost:5000/api/bookings/user/${user.id}`)
       .then((res) => res.json())
       .then((data) => setBookings(data))
       .catch((err) => console.error("Error fetching bookings:", err));

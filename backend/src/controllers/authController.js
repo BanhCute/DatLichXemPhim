@@ -1,7 +1,6 @@
 let { PrismaClient } = require("@prisma/client");
 let bcrypt = require("bcrypt");
 let prisma = new PrismaClient();
-require("dotenv").config();
 
 module.exports = {
   CreateAnUser: async function (email, password, name, role = "USER") {
@@ -40,6 +39,17 @@ module.exports = {
       throw new Error("Email hoặc mật khẩu không đúng");
     }
 
+    return user;
+  },
+
+  Me: async function (id) {
+    let user = await prisma.user.findUnique({
+      where: { id: id },
+      select: { id: true, email: true, name: true , role: true },
+    });
+    if (!user) {
+      throw new Error("Người dùng không tồn tại");
+    }
     return user;
   },
 };

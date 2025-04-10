@@ -3,7 +3,8 @@ var router = express.Router();
 var jwt = require("jsonwebtoken");
 let { CreateSuccessRes } = require('../utils/responseHandler');
 let authController = require('../controllers/authController');
-require('dotenv').config();
+const { CheckAuth } = require('../utils/check_auth');
+require("dotenv").config();
 
 router.post('/register', async function (req, res, next) {
   try {
@@ -28,6 +29,15 @@ router.post('/login', async function (req, res, next) {
       id: user.id, email: user.email,
       expire: (new Date(Date.now() + 60 * 60 * 1000)).getTime()
     }, process.env.JWT_SECRET), 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/me', CheckAuth, async function (req, res, next) {
+  try {
+    let user = await authController.Me(req.user.id);
+    CreateSuccessRes(res, user, 200);
   } catch (error) {
     next(error);
   }
