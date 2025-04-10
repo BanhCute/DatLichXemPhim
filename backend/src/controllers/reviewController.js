@@ -1,5 +1,4 @@
 let { PrismaClient } = require("@prisma/client");
-const { Update } = require("./authController");
 
 const prisma = new PrismaClient();
 

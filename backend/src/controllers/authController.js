@@ -71,12 +71,10 @@ const authController = {
     if (!user) {
       throw new Error("Email hoặc mật khẩu không đúng");
     }
-
     let isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error("Email hoặc mật khẩu không đúng");
     }
-
     return user;
   },
 
@@ -93,33 +91,23 @@ const authController = {
 
   ChangePassword: async function (req, res) {
     try {
-      // Lấy user ID từ middleware auth
       const userId = parseInt(req.user.id);
       const { currentPassword, newPassword } = req.body;
-
-      console.log("Attempting password change for user:", userId);
-
-      // Validate input
       if (!userId || !currentPassword || !newPassword) {
         return res.status(400).json({
           message: "Thiếu thông tin cần thiết",
         });
       }
-
-      // Tìm user trong database
       const user = await prisma.user.findUnique({
         where: {
           id: userId,
         },
       });
-
       if (!user) {
         return res.status(404).json({
           message: "Không tìm thấy người dùng",
         });
       }
-
-      // Kiểm tra mật khẩu hiện tại
       const isValidPassword = await bcrypt.compare(
         currentPassword,
         user.password
@@ -129,33 +117,19 @@ const authController = {
           message: "Mật khẩu hiện tại không đúng",
         });
       }
-
-      // Hash mật khẩu mới
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // Cập nhật mật khẩu trong database
       const updatedUser = await prisma.user.update({
         where: {
           id: userId,
         },
         data: {
           password: hashedPassword,
-          updatedAt: new Date(), // Cập nhật thời gian
+          updatedAt: new Date(),
         },
       });
-
-      console.log("Password updated successfully for user:", userId);
-
-      return res.status(200).json({
-        success: true,
-        message: "Đổi mật khẩu thành công",
-      });
+      return updatedUser;
     } catch (error) {
-      console.error("Error in ChangePassword:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi server: " + error.message,
-      });
+      throw new Error(error.message);
     }
   },
 };

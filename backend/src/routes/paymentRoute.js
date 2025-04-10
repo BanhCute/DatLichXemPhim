@@ -2,13 +2,12 @@ var express = require('express');
 var router = express.Router();
 let paymentController = require('../controllers/paymentController');
 let { CreateSuccessRes } = require('../utils/responseHandler');
-const { CheckAuth, CheckRole } = require('../utils/check_auth');
-const { ro } = require('date-fns/locale');
+const { CheckAuth } = require('../utils/check_auth');
 require('dotenv').config();
 
 router.get('/', CheckAuth, async function (req, res, next) {
   try {
-    let payments = await paymentController.GetAll();
+    let payments = await paymentController.GetAll(req.user.id);
     CreateSuccessRes(res, payments, 200);
   } catch (error) {
     next(error);

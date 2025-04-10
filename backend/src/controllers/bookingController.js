@@ -3,7 +3,6 @@ const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 
 const bookingController = {
-  // Get all bookings
   GetAll: async function (req, res) {
     try {
       const bookings = await prisma.booking.findMany({
@@ -22,7 +21,6 @@ const bookingController = {
     }
   },
 
-  // Get booking by id
   GetById: async function (req, res) {
     try {
       const bookingId = parseInt(req.params.id);
@@ -58,24 +56,20 @@ const bookingController = {
         data: booking,
       });
     } catch (error) {
-      console.error("Error in GetById:", error);
       return res.status(500).json({
         message: "Lỗi server: " + error.message,
       });
     }
   },
 
-  // Create booking
   Create: async function (req, res) {
     try {
       let { showTimeId, seatNumbers, promotionCode } = req.body;
 
-      // Lấy userId từ token
       const token = req.headers.authorization?.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decoded.id;
 
-      // Kiểm tra user và showTime
       let user = await prisma.user.findUnique({
         where: { id: userId },
       });
@@ -94,11 +88,9 @@ const bookingController = {
           .json({ message: "User hoặc suất chiếu không tồn tại" });
       }
 
-      // Tính tổng tiền gốc
       let totalPrice = seatNumbers.length * showTime.price;
       let promotionId = null;
 
-      // Kiểm tra và áp dụng mã giảm giá nếu có
       if (promotionCode) {
         const promotion = await prisma.promotion.findFirst({
           where: {
@@ -119,7 +111,6 @@ const bookingController = {
         }
       }
 
-      // Tạo booking với promotionId
       const booking = await prisma.booking.create({
         data: {
           userId,
@@ -139,7 +130,6 @@ const bookingController = {
         },
       });
 
-      // Cập nhật trạng thái ghế
       await prisma.seat.updateMany({
         where: {
           showTimeId: showTimeIdInt,
@@ -156,43 +146,13 @@ const bookingController = {
         message: "Đặt vé thành công",
       });
     } catch (error) {
-      console.error("Booking error:", error);
-      return res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Update booking
-  Update: async function (req, res) {
-    try {
-      const booking = await prisma.booking.update({
-        where: { id: parseInt(req.params.id) },
-        data: req.body,
-      });
-      return res.json({ data: booking });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Delete booking
-  Delete: async function (req, res) {
-    try {
-      await prisma.booking.delete({
-        where: { id: parseInt(req.params.id) },
-      });
-      return res.json({ message: "Xóa đơn đặt vé thành công" });
-    } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   },
 
   GetMyBookings: async function (req, res) {
     try {
-      // Lấy userId từ token đã được decode trong middleware
       const userId = parseInt(req.user.id);
-      console.log("Getting bookings for userId:", userId);
-
-      // Lấy danh sách booking
       const bookings = await prisma.booking.findMany({
         where: {
           userId: userId,
@@ -210,14 +170,10 @@ const bookingController = {
           createdAt: "desc",
         },
       });
-
-      console.log("Found bookings:", bookings);
-
       return res.json({
         data: bookings,
       });
     } catch (error) {
-      console.error("Error in GetMyBookings:", error);
       return res.status(500).json({
         message: "Lỗi server: " + error.message,
       });

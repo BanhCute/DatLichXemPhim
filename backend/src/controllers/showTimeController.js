@@ -14,28 +14,22 @@ const showTimeController = {
   GetByMovie: async function (req, res) {
     try {
       const movieId = parseInt(req.params.movieId);
-
-      // Kiểm tra phim tồn tại
       const movie = await prisma.movie.findUnique({
         where: { id: movieId },
       });
-
       if (!movie) {
         return res.status(404).json({
           message: "Không tìm thấy phim",
         });
       }
-
-      // Lấy TẤT CẢ suất chiếu của phim, không lọc theo thời gian
       const showTimes = await prisma.showTime.findMany({
         where: {
           movieId: movieId,
         },
         orderBy: {
-          startTime: "asc", // Sắp xếp theo thời gian tăng dần
+          startTime: "asc",
         },
       });
-
       return res.json({
         data: showTimes,
       });
@@ -49,7 +43,6 @@ const showTimeController = {
   GetById: async function (req, res) {
     try {
       const showTimeId = parseInt(req.params.id);
-
       const showTime = await prisma.showTime.findUnique({
         where: { id: showTimeId },
         include: {
@@ -57,18 +50,15 @@ const showTimeController = {
           seats: true,
         },
       });
-
       if (!showTime) {
         return res.status(404).json({
           message: "Không tìm thấy suất chiếu",
         });
       }
-
       return res.json({
         data: showTime,
       });
     } catch (error) {
-      console.error("Error in GetById:", error);
       return res.status(500).json({
         message: error.message,
       });
@@ -109,7 +99,6 @@ const showTimeController = {
           imageUrl,
         },
       });
-
       return movie;
     } catch (error) {
       throw new Error(error.message);
@@ -121,15 +110,12 @@ const showTimeController = {
       let showTimes = await prisma.showTime.findMany({
         where: { movieId: parseInt(req.params.id) },
       });
-
       if (showTimes.length > 0) {
         throw new Error("Không thể xóa phim đang có lịch chiếu");
       }
-
       let deletedMovie = await prisma.movie.delete({
         where: { id: parseInt(req.params.id) },
       });
-
       return deletedMovie;
     } catch (error) {
       throw new Error(error.message);
@@ -139,30 +125,22 @@ const showTimeController = {
   GetSeats: async function (req, res) {
     try {
       const showTimeId = parseInt(req.params.id);
-
-      // Kiểm tra suất chiếu tồn tại
       const showTime = await prisma.showTime.findUnique({
         where: { id: showTimeId },
       });
-
       if (!showTime) {
         return res.status(404).json({
           message: "Không tìm thấy suất chiếu",
         });
       }
-
-      // Lấy danh sách ghế
       const seats = await prisma.seat.findMany({
         where: { showTimeId: showTimeId },
         orderBy: [{ number: "asc" }],
       });
-
-      // Nếu chưa có ghế nào, tạo ghế mặc định
       if (seats.length === 0) {
         const rows = ["A", "B", "C", "D", "E"];
         const seatsPerRow = 8;
         const defaultSeats = [];
-
         for (let row of rows) {
           for (let i = 1; i <= seatsPerRow; i++) {
             defaultSeats.push({
@@ -172,23 +150,17 @@ const showTimeController = {
             });
           }
         }
-
-        // Tạo ghế trong database
         await prisma.seat.createMany({
           data: defaultSeats,
         });
-
-        // Lấy lại danh sách ghế sau khi tạo
         const newSeats = await prisma.seat.findMany({
           where: { showTimeId: showTimeId },
           orderBy: [{ number: "asc" }],
         });
-
         return res.json({
           data: newSeats,
         });
       }
-
       return res.json({
         data: seats,
       });

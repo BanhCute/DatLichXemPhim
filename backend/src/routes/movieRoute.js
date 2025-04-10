@@ -1,15 +1,49 @@
 const express = require("express");
 const router = express.Router();
 const movieController = require("../controllers/movieController");
-const authMiddleware = require("../middleware/authMiddleware");
+const { CheckAuth, CheckRole } = require("../utils/check_auth");
 
-// Routes công khai - không cần đăng nhập
-router.get("/", movieController.GetAll);
-router.get("/:id", movieController.GetById);
+router.get("/", async function (req, res, next) {
+  try {
+    const movies = await movieController.GetAll(req, res);
+    res.json({ data: movies });
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Routes cần xác thực
-router.post("/", authMiddleware, movieController.Create);
-router.put("/:id", authMiddleware, movieController.Update);
-router.delete("/:id", authMiddleware, movieController.Delete);
+router.get("/:id", async function (req, res, next) {
+  try {
+    const movie = await movieController.GetById(req, res);
+    res.json({ data: movie });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    const movie = await movieController.Create(req);
+    res.status(201).json({ data: movie });
+  } catch (error) {
+    next(error);
+  }
+});
+router.put("/:id", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    const movie = await movieController.Update(req);
+    res.json({ data: movie });
+  } catch (error) {
+    next(error);
+  }
+});
+router.delete("/:id", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    const movie = await movieController.Delete(req);
+    res.json({ data: movie });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

@@ -1,18 +1,43 @@
 const express = require("express");
 const router = express.Router();
 const bookingController = require("../controllers/bookingController");
-const authMiddleware = require("../middleware/authMiddleware");
+const { CheckAuth, CheckRole } = require("../utils/check_auth");
+const { CreateSuccessRes } = require("../utils/responseHandler");
 
-// Tất cả routes booking đều cần xác thực
-router.use(authMiddleware);
+router.get("/my-bookings", CheckAuth, async function (req, res, next) {
+  try {
+    let bookings = await bookingController.GetMyBookings(req,res);
+    CreateSuccessRes(res, bookings, 200);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Đặt route my-bookings trước các route khác
-router.get("/my-bookings", bookingController.GetMyBookings);
+router.get("/", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let bookings = await bookingController.GetAll(req, res);
+    CreateSuccessRes(res, bookings, 200);
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.get("/", bookingController.GetAll);
-router.get("/:id", bookingController.GetById);
-router.post("/", bookingController.Create);
-router.put("/:id", bookingController.Update);
-router.delete("/:id", bookingController.Delete);
+router.get("/:id", CheckAuth, async function (req, res, next) {
+  try {
+    let booking = await bookingController.GetById(req, res);
+    CreateSuccessRes(res, booking, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let booking = await bookingController.Create(req, res);
+    CreateSuccessRes(res, booking, 200);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

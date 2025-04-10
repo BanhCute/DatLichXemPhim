@@ -3,7 +3,6 @@ var router = express.Router();
 let promotionController = require("../controllers/promotionController");
 let { CreateSuccessRes } = require("../utils/responseHandler");
 const { CheckAuth, CheckRole } = require("../utils/check_auth");
-const authMiddleware = require("../middleware/authMiddleware");
 require("dotenv").config();
 
 router.get("/", async function (req, res, next) {
@@ -43,6 +42,13 @@ router.delete("/:id", [CheckAuth, CheckRole], async function (req, res, next) {
   }
 });
 
-router.get("/check/:code", authMiddleware, promotionController.CheckCode);
+router.get("/check/:code", CheckAuth, async function (req, res, next) {
+  try {
+    let promotion = await promotionController.CheckCode(req, res);
+    CreateSuccessRes(res, promotion, 200);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

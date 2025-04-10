@@ -49,7 +49,6 @@ const promotionController = {
     try {
       const code = req.params.code;
       const now = new Date();
-
       const promotion = await prisma.promotion.findFirst({
         where: {
           code: code.toUpperCase(),
@@ -61,18 +60,15 @@ const promotionController = {
           },
         },
       });
-
       if (!promotion) {
         return res.status(404).json({
           message: "Mã giảm giá không tồn tại hoặc đã hết hạn",
         });
       }
-
       return res.json({
         data: promotion,
       });
     } catch (error) {
-      console.error("Error in CheckCode:", error);
       return res.status(500).json({
         message: "Lỗi server: " + error.message,
       });
