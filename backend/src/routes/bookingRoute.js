@@ -6,7 +6,7 @@ const { CreateSuccessRes } = require("../utils/responseHandler");
 
 router.get("/my-bookings", CheckAuth, async function (req, res, next) {
   try {
-    let bookings = await bookingController.GetMyBookings(req,res);
+    let bookings = await bookingController.GetMyBookings(req, res);
     CreateSuccessRes(res, bookings, 200);
   } catch (error) {
     next(error);
@@ -31,7 +31,7 @@ router.get("/:id", CheckAuth, async function (req, res, next) {
   }
 });
 
-router.post("/", [CheckAuth, CheckRole], async function (req, res, next) {
+router.post("/create", [CheckAuth, CheckRole], async function (req, res, next) {
   try {
     let booking = await bookingController.Create(req, res);
     CreateSuccessRes(res, booking, 200);

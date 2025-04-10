@@ -18,10 +18,19 @@ import {
   TextField,
   Box,
   Alert,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem,
+  Chip,
+  OutlinedInput,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { Link, useNavigate } from "react-router-dom";
 
 const AdminMovies = () => {
   const [movies, setMovies] = useState([]);
@@ -34,9 +43,14 @@ const AdminMovies = () => {
     imageUrl: "",
   });
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [tabValue, setTabValue] = useState(1);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   useEffect(() => {
     fetchMovies();
+    fetchGenres();
   }, []);
 
   const fetchMovies = async () => {
@@ -54,11 +68,31 @@ const AdminMovies = () => {
     }
   };
 
+  const fetchGenres = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/genres", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setGenres(data.data);
+    } catch (err) {
+      setError("Không thể tải danh sách thể loại");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
     try {
+      const movieData = {
+        ...formData,
+        genreIds: selectedGenres,
+      };
+
       const url = editMovie
         ? `http://localhost:5000/api/movies/${editMovie.id}`
         : "http://localhost:5000/api/movies";
@@ -71,7 +105,7 @@ const AdminMovies = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(movieData),
       });
 
       if (!response.ok) throw new Error("Thao tác không thành công");
@@ -84,6 +118,7 @@ const AdminMovies = () => {
         duration: "",
         imageUrl: "",
       });
+      setSelectedGenres([]);
       setEditMovie(null);
     } catch (err) {
       setError(err.message);
@@ -110,8 +145,59 @@ const AdminMovies = () => {
     }
   };
 
+  const handleTabChange = (event, newValue) => {
+    switch (newValue) {
+      case 0:
+        navigate("/admin");
+        break;
+      case 1:
+        navigate("/admin/movies");
+        break;
+      case 2:
+        navigate("/admin/genres");
+        break;
+    }
+  };
+
+  const handleGenreChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedGenres(typeof value === "string" ? value.split(",") : value);
+  };
+
+  useEffect(() => {
+    if (editMovie) {
+      setSelectedGenres(editMovie.genres?.map((genre) => genre.id) || []);
+    }
+  }, [editMovie]);
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper sx={{ mb: 3 }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{
+            "& .MuiTab-root": {
+              color: "#666",
+              "&.Mui-selected": {
+                color: "#e50914",
+              },
+            },
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#e50914",
+            },
+          }}
+        >
+          <Tab label="DASHBOARD" />
+          <Tab label="QUẢN LÝ PHIM" />
+          <Tab label="QUẢN LÝ THỂ LOẠI" />
+        </Tabs>
+      </Paper>
+
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Typography variant="h4">Quản Lý Phim</Typography>
         <Button
@@ -125,6 +211,7 @@ const AdminMovies = () => {
               duration: "",
               imageUrl: "",
             });
+            setSelectedGenres([]);
             setOpen(true);
           }}
         >
@@ -144,6 +231,7 @@ const AdminMovies = () => {
             <TableRow>
               <TableCell>Tên Phim</TableCell>
               <TableCell>Thời Lượng</TableCell>
+              <TableCell>Thể Loại</TableCell>
               <TableCell>Thao Tác</TableCell>
             </TableRow>
           </TableHead>
@@ -153,10 +241,29 @@ const AdminMovies = () => {
                 <TableCell>{movie.title}</TableCell>
                 <TableCell>{movie.duration} phút</TableCell>
                 <TableCell>
+                  <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                    {movie.genres?.map((genre) => (
+                      <Chip
+                        key={genre.id}
+                        label={genre.name}
+                        size="small"
+                        sx={{
+                          backgroundColor: "#1e3a8a",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#1e4899",
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </TableCell>
+                <TableCell>
                   <IconButton
                     onClick={() => {
                       setEditMovie(movie);
                       setFormData(movie);
+                      setSelectedGenres(movie.genres?.map((g) => g.id) || []);
                       setOpen(true);
                     }}
                   >
@@ -172,7 +279,12 @@ const AdminMovies = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
           {editMovie ? "Chỉnh Sửa Phim" : "Thêm Phim Mới"}
         </DialogTitle>
@@ -216,6 +328,39 @@ const AdminMovies = () => {
               setFormData({ ...formData, imageUrl: e.target.value })
             }
           />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="genres-label">Thể loại</InputLabel>
+            <Select
+              labelId="genres-label"
+              multiple
+              value={selectedGenres}
+              onChange={handleGenreChange}
+              input={<OutlinedInput label="Thể loại" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((genreId) => {
+                    const genre = genres.find((g) => g.id === genreId);
+                    return (
+                      <Chip
+                        key={genreId}
+                        label={genre?.name}
+                        sx={{
+                          backgroundColor: "#1e3a8a",
+                          color: "white",
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+            >
+              {genres.map((genre) => (
+                <MenuItem key={genre.id} value={genre.id}>
+                  {genre.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Hủy</Button>

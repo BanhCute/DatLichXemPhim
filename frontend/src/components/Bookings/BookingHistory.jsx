@@ -9,13 +9,15 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Divider,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import MovieIcon from "@mui/icons-material/Movie";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PaymentIcon from "@mui/icons-material/Payment";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import TheatersIcon from "@mui/icons-material/Theaters";
 import dayjs from "dayjs";
 
 const BookingHistory = () => {
@@ -67,8 +69,16 @@ const BookingHistory = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "80vh",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <CircularProgress sx={{ color: "#e50914" }} />
       </Box>
     );
   }
@@ -83,79 +93,149 @@ const BookingHistory = () => {
 
   if (bookings.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            textAlign: "center",
-            background: "linear-gradient(to right, #1a237e, #0d47a1)",
-            color: "white",
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6">Bạn chưa có đơn đặt vé nào</Typography>
-        </Paper>
-      </Container>
+      <Box
+        sx={{
+          backgroundColor: "#f5f5f5",
+          minHeight: "90vh",
+          py: 8,
+        }}
+      >
+        <Container maxWidth="md">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 6,
+              textAlign: "center",
+              background: "linear-gradient(to right, #141414, #1f1f1f)",
+              color: "white",
+              borderRadius: 2,
+            }}
+          >
+            <TheatersIcon sx={{ fontSize: 60, color: "#e50914", mb: 2 }} />
+            <Typography variant="h5" gutterBottom>
+              Bạn chưa có đơn đặt vé nào
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: "#9e9e9e" }}>
+              Hãy đặt vé để thưởng thức những bộ phim hấp dẫn
+            </Typography>
+            <Button
+              variant="contained"
+              href="/movies"
+              sx={{
+                backgroundColor: "#e50914",
+                "&:hover": {
+                  backgroundColor: "#b81d24",
+                },
+                px: 4,
+                py: 1.5,
+              }}
+            >
+              Đặt vé ngay
+            </Button>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: "#1a237e", mb: 4 }}>
-        Lịch sử đặt vé
-      </Typography>
+    <Box
+      sx={{
+        backgroundColor: "#f5f5f5",
+        minHeight: "90vh",
+        py: 4,
+      }}
+    >
+      <Container maxWidth="lg">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <LocalActivityIcon
+            sx={{
+              fontSize: 40,
+              color: "#e50914",
+              mr: 2,
+            }}
+          />
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              color: "#141414",
+            }}
+          >
+            Lịch sử đặt vé
+          </Typography>
+        </Box>
 
-      <Grid container spacing={3}>
-        {bookings.map((booking) => (
-          <Grid item xs={12} key={booking.id}>
-            <Card
-              sx={{
-                display: "flex",
-                background: "linear-gradient(to right, #1a237e, #0d47a1)",
-                color: "white",
-                borderRadius: 2,
-              }}
-            >
-              <CardMedia
-                component="img"
-                sx={{ width: 200 }}
-                image={
-                  booking.showTime?.movie?.imageUrl || "/default-movie.jpg"
-                }
-                alt={booking.showTime?.movie?.title}
-              />
-              <Box
-                sx={{ display: "flex", flexDirection: "column", flex: 1, p: 2 }}
+        <Grid container spacing={3}>
+          {bookings.map((booking) => (
+            <Grid item xs={12} key={booking.id}>
+              <Card
+                elevation={3}
+                sx={{
+                  display: "flex",
+                  background:
+                    "linear-gradient(135deg, #141414 0%, #1f1f1f 100%)",
+                  color: "white",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  transition: "transform 0.2s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                  },
+                }}
               >
-                <CardContent>
+                <CardMedia
+                  component="img"
+                  sx={{
+                    width: { xs: 120, sm: 200 },
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  image={
+                    booking.showTime?.movie?.imageUrl || "/default-movie.jpg"
+                  }
+                  alt={booking.showTime?.movie?.title}
+                />
+                <Box sx={{ flex: 1, p: 3 }}>
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 2,
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: 2,
+                      mb: 3,
                     }}
                   >
-                    <Typography variant="h5">
-                      {booking.showTime?.movie?.title}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                      {booking.showTime?.movie?.genres?.map((genre) => (
-                        <Chip
-                          key={genre.id}
-                          label={genre.name}
-                          size="small"
-                          sx={{
-                            backgroundColor: "rgba(255,255,255,0.2)",
-                            color: "white",
-                            borderColor: "rgba(255,255,255,0.3)",
-                            "&:hover": {
-                              backgroundColor: "rgba(255,255,255,0.3)",
-                            },
-                          }}
-                        />
-                      ))}
+                    <Box>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", mb: 1 }}
+                      >
+                        {booking.showTime?.movie?.title}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        {booking.showTime?.movie?.genres?.map((genre) => (
+                          <Chip
+                            key={genre.id}
+                            label={genre.name}
+                            size="small"
+                            sx={{
+                              backgroundColor: "#e50914",
+                              color: "white",
+                              "&:hover": {
+                                backgroundColor: "#b81d24",
+                              },
+                            }}
+                          />
+                        ))}
+                      </Box>
                     </Box>
                     <Chip
                       label={
@@ -165,51 +245,72 @@ const BookingHistory = () => {
                           ? "Đã xác nhận"
                           : "Đã hủy"
                       }
-                      color={
-                        booking.status === "PENDING"
-                          ? "warning"
-                          : booking.status === "CONFIRMED"
-                          ? "success"
-                          : "error"
-                      }
-                      sx={{ fontWeight: "bold" }}
+                      sx={{
+                        backgroundColor:
+                          booking.status === "PENDING"
+                            ? "#ffa726"
+                            : booking.status === "CONFIRMED"
+                            ? "#66bb6a"
+                            : "#ef5350",
+                        color: "white",
+                        fontWeight: "bold",
+                        px: 2,
+                      }}
                     />
                   </Box>
 
-                  <Grid container spacing={2}>
+                  <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                        sx={{
+                          backgroundColor: "rgba(255,255,255,0.05)",
+                          borderRadius: 1,
+                          p: 2,
+                        }}
                       >
-                        <AccessTimeIcon sx={{ mr: 1 }} />
-                        <Typography>
-                          {dayjs(booking.showTime?.startTime).format(
-                            "HH:mm - DD/MM/YYYY"
-                          )}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
-                      >
-                        <EventSeatIcon sx={{ mr: 1 }} />
-                        <Typography>
-                          Ghế:{" "}
-                          {booking.seats?.map((seat) => seat.number).join(", ")}
-                        </Typography>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                        >
+                          <AccessTimeIcon sx={{ mr: 1, color: "#e50914" }} />
+                          <Typography>
+                            {dayjs(booking.showTime?.startTime).format(
+                              "HH:mm - DD/MM/YYYY"
+                            )}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <EventSeatIcon sx={{ mr: 1, color: "#e50914" }} />
+                          <Typography>
+                            Ghế:{" "}
+                            {booking.seats
+                              ?.map((seat) => seat.number)
+                              .join(", ")}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                        sx={{
+                          backgroundColor: "rgba(255,255,255,0.05)",
+                          borderRadius: 1,
+                          p: 2,
+                        }}
                       >
-                        <MovieIcon sx={{ mr: 1 }} />
-                        <Typography>Phòng: {booking.showTime?.room}</Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <PaymentIcon sx={{ mr: 1 }} />
-                        <Typography>
-                          Tổng tiền: {booking.totalPrice?.toLocaleString()}đ
-                        </Typography>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                        >
+                          <MovieIcon sx={{ mr: 1, color: "#e50914" }} />
+                          <Typography>
+                            Phòng: {booking.showTime?.room}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <PaymentIcon sx={{ mr: 1, color: "#e50914" }} />
+                          <Typography variant="h6" sx={{ fontWeight: "500" }}>
+                            {booking.totalPrice?.toLocaleString()}đ
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid>
                   </Grid>
@@ -217,23 +318,22 @@ const BookingHistory = () => {
                   {booking.promotion && (
                     <Box sx={{ mt: 2 }}>
                       <Chip
-                        label={`Mã giảm giá: ${booking.promotion.code} (-${booking.promotion.discount}%)`}
-                        color="success"
-                        variant="outlined"
+                        label={`Giảm ${booking.promotion.discount}% - ${booking.promotion.code}`}
                         sx={{
-                          borderColor: "rgba(255,255,255,0.5)",
+                          backgroundColor: "#4caf50",
                           color: "white",
+                          fontWeight: "500",
                         }}
                       />
                     </Box>
                   )}
-                </CardContent>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+                </Box>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

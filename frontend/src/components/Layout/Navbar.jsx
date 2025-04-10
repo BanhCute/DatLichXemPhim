@@ -13,9 +13,11 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import HistoryIcon from "@mui/icons-material/History";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -23,7 +25,9 @@ const Navbar = () => {
   useEffect(() => {
     const checkToken = () => {
       const token = localStorage.getItem("token");
+      const userRole = localStorage.getItem("userRole");
       setIsLoggedIn(!!token);
+      setIsAdmin(userRole === "ADMIN");
     };
 
     checkToken();
@@ -119,6 +123,27 @@ const Navbar = () => {
             Phim
           </Button>
 
+          {isLoggedIn && isAdmin && (
+            <Button
+              component={Link}
+              to="/admin"
+              sx={{
+                color: "#fff",
+                mx: 1.5,
+                fontWeight: 500,
+                textTransform: "none",
+                fontSize: "1rem",
+                "&:hover": {
+                  color: "#e50914",
+                  transform: "scale(1.05)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Trang quản trị
+            </Button>
+          )}
+
           {isLoggedIn ? (
             <>
               <IconButton
@@ -163,6 +188,16 @@ const Navbar = () => {
                   }}
                 >
                   <HistoryIcon sx={{ mr: 1 }} /> Lịch sử đặt vé
+                </MenuItem>
+                <MenuItem
+                  component={Link}
+                  to="/admin"
+                  onClick={handleClose}
+                  sx={{
+                    "&:hover": { color: "#e50914" },
+                  }}
+                >
+                  <DashboardIcon sx={{ mr: 1 }} /> Trang quản trị
                 </MenuItem>
                 <MenuItem
                   onClick={() => {

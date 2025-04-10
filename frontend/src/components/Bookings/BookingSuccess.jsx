@@ -1,141 +1,275 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
   Container,
   Paper,
   Typography,
   Box,
-  Chip,
-  Divider,
   Button,
+  CircularProgress,
+  Chip,
+  Grid,
+  Divider,
 } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import dayjs from "dayjs";
+import MovieIcon from "@mui/icons-material/Movie";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 
 const BookingSuccess = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { booking } = location.state || {};
+  const { bookingId } = useParams();
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!booking) {
+  useEffect(() => {
+    const fetchBookingDetails = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:5000/api/bookings/${bookingId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Không thể tải thông tin đặt vé");
+        }
+
+        const data = await response.json();
+        setBooking(data.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookingDetails();
+  }, [bookingId]);
+
+  if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Typography variant="h5" align="center">
-          Không tìm thấy thông tin đặt vé
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "80vh",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <CircularProgress sx={{ color: "#e50914" }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Paper sx={{ p: 3, textAlign: "center" }}>
+          <Typography color="error">{error}</Typography>
+        </Paper>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          textAlign: "center",
-          background: "linear-gradient(to right, #4CAF50, #45a049)",
-          color: "white",
-          borderRadius: 2,
-        }}
-      >
-        <CheckCircleIcon sx={{ fontSize: 60, mb: 2 }} />
-        <Typography variant="h4" gutterBottom>
-          Đặt vé thành công!
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Mã đặt vé: #{booking.id}
-        </Typography>
-      </Paper>
-
-      <Paper elevation={3} sx={{ p: 4, mt: 3, borderRadius: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Chi tiết đặt vé
-        </Typography>
-        <Divider sx={{ my: 2 }} />
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Tổng tiền
-          </Typography>
-          <Typography variant="h6">
-            {booking.totalPrice.toLocaleString()}đ
-            {booking.promotion && (
-              <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
-                (Đã giảm {booking.promotion.discount}%)
-              </Typography>
-            )}
-          </Typography>
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Thời gian đặt
-          </Typography>
-          <Typography>
-            {dayjs(booking.createdAt).format("HH:mm - DD/MM/YYYY")}
-          </Typography>
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Phương thức thanh toán
-          </Typography>
-          <Typography>
-            {location.state.payment?.method === "CASH" ? "Tiền mặt" : "Thẻ"}
-          </Typography>
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Trạng thái thanh toán
-          </Typography>
-          <Chip
-            label={
-              location.state.payment?.status === "COMPLETED"
-                ? "Đã thanh toán"
-                : "Chờ thanh toán"
-            }
-            color={
-              location.state.payment?.status === "COMPLETED"
-                ? "success"
-                : "warning"
-            }
-          />
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
-            {booking.showTime?.movie?.genres?.map((genre) => (
-              <Chip
-                key={genre.id}
-                label={genre.name}
-                size="small"
-                sx={{
-                  backgroundColor: "#e3f2fd",
-                  color: "#1976d2",
-                }}
-              />
-            ))}
+    <Box sx={{ 
+      backgroundColor: "#f5f5f5", 
+      minHeight: "90vh",
+      py: 4 
+    }}>
+      <Container maxWidth="md">
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            p: 4,
+            borderRadius: 2,
+            background: "linear-gradient(to bottom, #141414, #1f1f1f)",
+            color: "white",
+          }}
+        >
+          <Box sx={{ 
+            textAlign: "center",
+            mb: 4,
+          }}>
+            <CheckCircleIcon 
+              sx={{ 
+                fontSize: 80, 
+                color: "#4CAF50",
+                mb: 2,
+                animation: "pulse 2s infinite",
+                "@keyframes pulse": {
+                  "0%": { transform: "scale(1)" },
+                  "50%": { transform: "scale(1.1)" },
+                  "100%": { transform: "scale(1)" },
+                }
+              }} 
+            />
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontWeight: "bold",
+                color: "#4CAF50",
+                mb: 1
+              }}
+            >
+              Đặt vé thành công!
+            </Typography>
+            <Typography variant="subtitle1" sx={{ color: "#9e9e9e" }}>
+              Cảm ơn bạn đã đặt vé tại Rạp phim LGTV
+            </Typography>
           </Box>
-        </Box>
 
-        <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>
-          <Button
-            variant="contained"
-            onClick={() => navigate("/bookings")}
-            sx={{
-              background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-            }}
-          >
-            Xem lịch sử đặt vé
-          </Button>
-          <Button variant="outlined" onClick={() => navigate("/")}>
-            Về trang chủ
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <Divider sx={{ my: 3, backgroundColor: "rgba(255,255,255,0.1)" }} />
+
+          {booking && (
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Box sx={{ 
+                  display: "flex", 
+                  alignItems: "center",
+                  mb: 2
+                }}>
+                  <MovieIcon sx={{ mr: 2, color: "#e50914" }} />
+                  <Typography variant="h5" sx={{ fontWeight: "500" }}>
+                    {booking.showTime?.movie?.title}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ 
+                  display: "flex", 
+                  gap: 1, 
+                  flexWrap: "wrap",
+                  mb: 3,
+                  ml: 5
+                }}>
+                  {booking.showTime?.movie?.genres?.map((genre) => (
+                    <Chip
+                      key={genre.id}
+                      label={genre.name}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#e50914",
+                        color: "white",
+                        '&:hover': {
+                          backgroundColor: "#b81d24",
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Box sx={{ 
+                  backgroundColor: "rgba(255,255,255,0.05)", 
+                  p: 2,
+                  borderRadius: 1,
+                  mb: 2
+                }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <AccessTimeIcon sx={{ mr: 1, color: "#e50914" }} />
+                    <Typography variant="body1">
+                      Suất chiếu: {new Date(booking.showTime?.startTime).toLocaleString()}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <MeetingRoomIcon sx={{ mr: 1, color: "#e50914" }} />
+                    <Typography variant="body1">
+                      Phòng: {booking.showTime?.room}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <EventSeatIcon sx={{ mr: 1, color: "#e50914" }} />
+                    <Typography variant="body1">
+                      Ghế: {booking.seats?.map(seat => seat.number).join(", ")}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Box sx={{ 
+                  backgroundColor: "rgba(255,255,255,0.05)", 
+                  p: 2,
+                  borderRadius: 1,
+                  mb: 2
+                }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <ConfirmationNumberIcon sx={{ mr: 1, color: "#e50914" }} />
+                    <Typography variant="h6">
+                      Tổng tiền: {booking.totalPrice.toLocaleString()}đ
+                    </Typography>
+                  </Box>
+
+                  {booking.promotion && (
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <LocalOfferIcon sx={{ mr: 1, color: "#4CAF50" }} />
+                      <Typography variant="body1" sx={{ color: "#4CAF50" }}>
+                        Đã áp dụng mã giảm giá: {booking.promotion.code}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
+          )}
+
+          <Box sx={{ 
+            mt: 4, 
+            display: "flex", 
+            gap: 2, 
+            justifyContent: "center",
+            flexWrap: "wrap"
+          }}>
+            <Button
+              component={Link}
+              to="/bookings"
+              variant="contained"
+              sx={{
+                backgroundColor: "#e50914",
+                '&:hover': {
+                  backgroundColor: "#b81d24",
+                },
+                px: 4,
+                py: 1.5
+              }}
+              startIcon={<ConfirmationNumberIcon />}
+            >
+              Xem lịch sử đặt vé
+            </Button>
+            <Button
+              component={Link}
+              to="/movies"
+              variant="outlined"
+              sx={{
+                color: "white",
+                borderColor: "white",
+                '&:hover': {
+                  borderColor: "#e50914",
+                  color: "#e50914",
+                },
+                px: 4,
+                py: 1.5
+              }}
+              startIcon={<MovieIcon />}
+            >
+              Tiếp tục đặt vé
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

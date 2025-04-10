@@ -75,83 +75,43 @@ const BookingConfirmation = () => {
   const handleBooking = async () => {
     try {
       const token = localStorage.getItem("token");
-      // Đặt vé
-      const bookingResponse = await fetch(
-        "http://localhost:5000/api/bookings",
+      // Log để debug
+      console.log("Selected seats:", selectedSeats);
+
+      const bookingData = {
+        showTimeId: showTime.id,
+        seatNumbers: selectedSeats.map((seat) => seat.number),
+        promotionCode: promoCode || null,
+      };
+
+      console.log("Sending booking data:", bookingData);
+
+      const response = await fetch(
+        "http://localhost:5000/api/bookings/create",
         {
+          // Sửa đường dẫn API
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            showTimeId: showTime.id,
-            seatNumbers: selectedSeats.map((seat) => seat.number),
-            promotionCode: promotion?.code,
-          }),
+          body: JSON.stringify(bookingData),
         }
       );
 
-      const bookingData = await bookingResponse.json();
-
-      if (!bookingResponse.ok) {
-        throw new Error(bookingData.message || "Không thể đặt vé");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Không thể đặt vé");
       }
 
-      // Tạo payment ngay sau khi đặt vé thành công
-      const paymentResponse = await fetch(
-        "http://localhost:5000/api/payments",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            bookingId: bookingData.data.id,
-            amount: bookingData.data.totalPrice,
-            method: "CASH", // hoặc có thể cho người dùng chọn phương thức
-            status: "COMPLETED", // Thanh toán ngay
-          }),
-        }
-      );
+      const data = await response.json();
+      console.log("Booking response:", data);
 
-      const paymentData = await paymentResponse.json();
-
-      if (!paymentResponse.ok) {
-        throw new Error("Không thể tạo thanh toán");
+      if (data.success) {
+        navigate(`/booking/success/${data.data.id}`);
+      } else {
+        throw new Error(data.message || "Đặt vé không thành công");
       }
-
-      // Cập nhật trạng thái booking thành CONFIRMED sau khi thanh toán
-      const updateBookingResponse = await fetch(
-        `http://localhost:5000/api/bookings/${bookingData.data.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: "CONFIRMED",
-          }),
-        }
-      );
-
-      if (!updateBookingResponse.ok) {
-        throw new Error("Không thể cập nhật trạng thái đặt vé");
-      }
-
-      // Chuyển đến trang thành công
-      navigate("/booking/success", {
-        state: {
-          booking: bookingData.data,
-          showTime,
-          selectedSeats,
-          promotion,
-          totalPrice: bookingData.data.totalPrice,
-          payment: paymentData.data,
-        },
-      });
     } catch (error) {
       console.error("Booking error:", error);
       setPromoError(error.message);

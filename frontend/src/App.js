@@ -16,6 +16,8 @@ import Home from "./components/Home/Home";
 import BookingSuccess from "./components/Bookings/BookingSuccess";
 import BookingHistory from "./components/Bookings/BookingHistory";
 import AdminMovies from "./components/Admin/AdminMovies";
+import AdminGenres from "./components/Admin/AdminGenres";
+import AdminDashboard from "./components/Admin/AdminDashboard";
 
 // Thêm route bảo vệ cho admin
 const AdminRoute = ({ children }) => {
@@ -44,6 +46,14 @@ function App() {
 
             {/* Admin Routes */}
             <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
               path="/admin/movies"
               element={
                 <AdminRoute>
@@ -51,11 +61,26 @@ function App() {
                 </AdminRoute>
               }
             />
+            <Route
+              path="/admin/genres"
+              element={
+                <AdminRoute>
+                  <AdminGenres />
+                </AdminRoute>
+              }
+            />
 
             {/* Protected Routes (sau này thêm auth check) */}
             <Route path="/movies" element={<MoviesList />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
-            <Route path="/booking/success" element={<BookingSuccess />} />
+            <Route
+              path="/booking/success/:bookingId"
+              element={
+                <ProtectedRoute>
+                  <BookingSuccess />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/booking/:showTimeId"
               element={
