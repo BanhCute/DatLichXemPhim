@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const movieController = require("../controllers/movieController");
 const { CheckAuth, CheckRole } = require("../utils/check_auth");
+const { CreateSuccessRes } = require("../utils/responseHandler");
 
 router.get("/", async function (req, res, next) {
   try {
-    const movies = await movieController.GetAll(req, res);
-    res.json({ data: movies });
+    const movies = await movieController.GetAll();
+    CreateSuccessRes(res, movies, 200);
   } catch (error) {
     next(error);
   }

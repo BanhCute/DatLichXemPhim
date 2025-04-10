@@ -36,10 +36,14 @@ app.use("/api/upload", uploadRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({
-    message: "Có lỗi xảy ra",
-    error: err.message,
-  });
+
+  // Kiểm tra nếu response chưa được gửi
+  if (!res.headersSent) {
+    res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Có lỗi xảy ra",
+    });
+  }
 });
 
 // Khởi động server

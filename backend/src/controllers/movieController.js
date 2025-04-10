@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const movieController = {
-  GetAll: async function (req, res) {
+  GetAll: async function () {
     try {
       const movies = await prisma.movie.findMany({
         include: {
@@ -12,14 +12,24 @@ const movieController = {
             },
           },
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
-      const transformedMovies = movies.map((movie) => ({
-        ...movie,
+
+      // Chuyển đổi dữ liệu trước khi trả về
+      return movies.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        description: movie.description,
+        duration: movie.duration,
+        imageUrl: movie.imageUrl,
+        createdAt: movie.createdAt,
+        updatedAt: movie.updatedAt,
         genres: movie.genres.map((mg) => mg.genre),
       }));
-      return res.json({ data: transformedMovies });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      throw new Error("Không thể lấy danh sách phim: " + error.message);
     }
   },
 
