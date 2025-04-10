@@ -72,7 +72,12 @@ const MovieList = () => {
                 {movie.description}
               </Typography>
 
-              <Button size="small" color="primary">
+              <Button
+                size="small"
+                color="primary"
+                component={Link}
+                to={`/booking/${movie.id}`}
+              >
                 Đặt vé
               </Button>
             </CardContent>
