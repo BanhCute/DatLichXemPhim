@@ -8,8 +8,6 @@ import {
   Button,
   Container,
   Box,
-  Rating,
-  Chip,
   IconButton,
   Skeleton,
   TextField,
