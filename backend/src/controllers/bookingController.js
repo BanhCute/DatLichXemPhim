@@ -164,11 +164,34 @@ const bookingController = {
   // Update booking
   Update: async function (req, res) {
     try {
+      const bookingId = parseInt(req.params.id);
+      const { status } = req.body;
+
       const booking = await prisma.booking.update({
-        where: { id: parseInt(req.params.id) },
-        data: req.body,
+        where: { id: bookingId },
+        data: { status },
+        include: {
+          seats: true,
+          showTime: true,
+        },
       });
-      return res.json({ data: booking });
+
+      // Nếu booking được xác nhận, cập nhật trạng thái ghế thành BOOKED
+      if (status === "CONFIRMED") {
+        await prisma.seat.updateMany({
+          where: {
+            bookingId: bookingId,
+          },
+          data: {
+            status: "BOOKED",
+          },
+        });
+      }
+
+      return res.json({
+        data: booking,
+        message: "Cập nhật trạng thái đặt vé thành công",
+      });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
@@ -190,7 +213,6 @@ const bookingController = {
     try {
       // Lấy userId từ token đã được decode trong middleware
       const userId = parseInt(req.user.id);
-      console.log("Getting bookings for userId:", userId);
 
       // Lấy danh sách booking
       const bookings = await prisma.booking.findMany({
@@ -211,7 +233,6 @@ const bookingController = {
         },
       });
 
-      console.log("Found bookings:", bookings);
 
       return res.json({
         data: bookings,

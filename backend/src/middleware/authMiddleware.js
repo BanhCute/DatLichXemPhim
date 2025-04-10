@@ -4,7 +4,6 @@ const authMiddleware = (req, res, next) => {
   try {
     // Lấy token từ header
     const token = req.headers.authorization?.split(" ")[1];
-    console.log("Received token:", token); // Debug log
 
     if (!token) {
       return res.status(401).json({
@@ -14,7 +13,6 @@ const authMiddleware = (req, res, next) => {
 
     // Verify token và lưu thông tin user vào req
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Debug log
 
     if (!decoded || !decoded.id) {
       return res.status(401).json({

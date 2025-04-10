@@ -11,6 +11,7 @@ import {
   Box,
   Stack,
   CircularProgress,
+  Chip,
 } from "@mui/material";
 import ShowTimesList from "../ShowTimes/ShowTimesList";
 
@@ -120,6 +121,25 @@ const MovieDetail = () => {
               <Typography variant="h4" component="h1">
                 {movie.title}
               </Typography>
+
+              {/* Thêm phần hiển thị thể loại */}
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                {movie.genres?.map((genre) => (
+                  <Chip
+                    key={genre.id}
+                    label={genre.name}
+                    sx={{
+                      backgroundColor: "#1e3a8a",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "#1e4899",
+                      },
+                      fontSize: "0.9rem",
+                      fontWeight: 500,
+                    }}
+                  />
+                ))}
+              </Box>
 
               <Box>
                 <Typography variant="h6" color="text.secondary">

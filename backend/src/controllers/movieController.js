@@ -13,7 +13,11 @@ const movieController = {
           },
         },
       });
-      return res.json({ data: movies });
+      const transformedMovies = movies.map((movie) => ({
+        ...movie,
+        genres: movie.genres.map((mg) => mg.genre),
+      }));
+      return res.json({ data: transformedMovies });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
@@ -49,7 +53,12 @@ const movieController = {
         });
       }
 
-      return res.json({ data: movie });
+      const transformedMovie = {
+        ...movie,
+        genres: movie.genres.map((mg) => mg.genre),
+      };
+
+      return res.json({ data: transformedMovie });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }

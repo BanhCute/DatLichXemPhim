@@ -70,33 +70,54 @@ const BookingSuccess = () => {
 
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle2" color="text.secondary">
-            Trạng thái
-          </Typography>
-          <Chip
-            label={
-              booking.status === "PENDING"
-                ? "Chờ xác nhận"
-                : booking.status === "CONFIRMED"
-                ? "Đã xác nhận"
-                : "Đã hủy"
-            }
-            color={
-              booking.status === "PENDING"
-                ? "warning"
-                : booking.status === "CONFIRMED"
-                ? "success"
-                : "error"
-            }
-          />
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary">
             Thời gian đặt
           </Typography>
           <Typography>
             {dayjs(booking.createdAt).format("HH:mm - DD/MM/YYYY")}
           </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Phương thức thanh toán
+          </Typography>
+          <Typography>
+            {location.state.payment?.method === "CASH" ? "Tiền mặt" : "Thẻ"}
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Trạng thái thanh toán
+          </Typography>
+          <Chip
+            label={
+              location.state.payment?.status === "COMPLETED"
+                ? "Đã thanh toán"
+                : "Chờ thanh toán"
+            }
+            color={
+              location.state.payment?.status === "COMPLETED"
+                ? "success"
+                : "warning"
+            }
+          />
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
+            {booking.showTime?.movie?.genres?.map((genre) => (
+              <Chip
+                key={genre.id}
+                label={genre.name}
+                size="small"
+                sx={{
+                  backgroundColor: "#e3f2fd",
+                  color: "#1976d2",
+                }}
+              />
+            ))}
+          </Box>
         </Box>
 
         <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>

@@ -117,7 +117,8 @@ const SeatSelection = () => {
     );
   };
 
-  const getSeatColor = (status) => {
+  const getSeatColor = (status, isSelected) => {
+    if (isSelected) return "success";
     switch (status) {
       case "AVAILABLE":
         return "primary";
@@ -215,6 +216,22 @@ const SeatSelection = () => {
               <Typography variant="h4" fontWeight="bold">
                 {movieInfo?.title || "Đang tải thông tin phim..."}
               </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                {movieInfo?.genres?.map((genre) => (
+                  <Chip
+                    key={genre.id}
+                    label={genre.name}
+                    size="small"
+                    sx={{
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.3)",
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
               <Typography variant="body1">
                 {movieInfo?.description || "Đang tải mô tả..."}
               </Typography>
@@ -317,20 +334,14 @@ const SeatSelection = () => {
           <Chip
             icon={<WeekendIcon />}
             label="Đang chọn"
-            color="success"
-            variant="outlined"
-          />
-          <Chip
-            icon={<WeekendIcon />}
-            label="Không khả dụng"
             sx={{
+              backgroundColor: "#1976d2",
+              color: "white",
               "& .MuiChip-icon": {
-                color: "grey.500",
+                color: "white",
               },
-              color: "grey.500",
-              borderColor: "grey.500",
+              borderColor: "#1976d2",
             }}
-            variant="outlined"
           />
         </Box>
 
@@ -361,7 +372,7 @@ const SeatSelection = () => {
                             ? "contained"
                             : "outlined"
                         }
-                        color={getSeatColor(seat.status)}
+                        color={seat.status === "BOOKED" ? "error" : "primary"}
                         onClick={() => handleSeatClick(seat)}
                         disabled={seat.status === "BOOKED"}
                         sx={{
@@ -373,12 +384,25 @@ const SeatSelection = () => {
                           "&:hover": {
                             transform:
                               seat.status !== "BOOKED" ? "scale(1.1)" : "none",
+                            backgroundColor: selectedSeats.includes(seat.id)
+                              ? "#1976d2"
+                              : "",
                           },
                           ...(seat.status === "BOOKED" && {
-                            bgcolor: "grey.300",
-                            borderColor: "grey.400",
+                            bgcolor: "error.light",
+                            borderColor: "error.main",
                             "& .MuiSvgIcon-root": {
-                              color: "grey.500",
+                              color: "error.main",
+                            },
+                          }),
+                          ...(selectedSeats.includes(seat.id) && {
+                            bgcolor: "#1976d2",
+                            borderColor: "#1976d2",
+                            "& .MuiSvgIcon-root": {
+                              color: "white",
+                            },
+                            "&:hover": {
+                              bgcolor: "#1565c0",
                             },
                           }),
                         }}

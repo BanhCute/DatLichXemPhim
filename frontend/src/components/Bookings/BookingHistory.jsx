@@ -140,6 +140,23 @@ const BookingHistory = () => {
                     <Typography variant="h5">
                       {booking.showTime?.movie?.title}
                     </Typography>
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                      {booking.showTime?.movie?.genres?.map((genre) => (
+                        <Chip
+                          key={genre.id}
+                          label={genre.name}
+                          size="small"
+                          sx={{
+                            backgroundColor: "rgba(255,255,255,0.2)",
+                            color: "white",
+                            borderColor: "rgba(255,255,255,0.3)",
+                            "&:hover": {
+                              backgroundColor: "rgba(255,255,255,0.3)",
+                            },
+                          }}
+                        />
+                      ))}
+                    </Box>
                     <Chip
                       label={
                         booking.status === "PENDING"

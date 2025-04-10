@@ -75,32 +75,81 @@ const BookingConfirmation = () => {
   const handleBooking = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          showTimeId: showTime.id,
-          seatNumbers: selectedSeats.map((seat) => seat.number),
-          promotionCode: promotion?.code,
-        }),
-      });
+      // Đặt vé
+      const bookingResponse = await fetch(
+        "http://localhost:5000/api/bookings",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            showTimeId: showTime.id,
+            seatNumbers: selectedSeats.map((seat) => seat.number),
+            promotionCode: promotion?.code,
+          }),
+        }
+      );
 
-      const data = await response.json();
+      const bookingData = await bookingResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Không thể đặt vé");
+      if (!bookingResponse.ok) {
+        throw new Error(bookingData.message || "Không thể đặt vé");
       }
 
+      // Tạo payment ngay sau khi đặt vé thành công
+      const paymentResponse = await fetch(
+        "http://localhost:5000/api/payments",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            bookingId: bookingData.data.id,
+            amount: bookingData.data.totalPrice,
+            method: "CASH", // hoặc có thể cho người dùng chọn phương thức
+            status: "COMPLETED", // Thanh toán ngay
+          }),
+        }
+      );
+
+      const paymentData = await paymentResponse.json();
+
+      if (!paymentResponse.ok) {
+        throw new Error("Không thể tạo thanh toán");
+      }
+
+      // Cập nhật trạng thái booking thành CONFIRMED sau khi thanh toán
+      const updateBookingResponse = await fetch(
+        `http://localhost:5000/api/bookings/${bookingData.data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: "CONFIRMED",
+          }),
+        }
+      );
+
+      if (!updateBookingResponse.ok) {
+        throw new Error("Không thể cập nhật trạng thái đặt vé");
+      }
+
+      // Chuyển đến trang thành công
       navigate("/booking/success", {
         state: {
-          booking: data.data,
+          booking: bookingData.data,
           showTime,
           selectedSeats,
           promotion,
-          totalPrice: data.data.totalPrice,
+          totalPrice: bookingData.data.totalPrice,
+          payment: paymentData.data,
         },
       });
     } catch (error) {
@@ -151,6 +200,25 @@ const BookingConfirmation = () => {
                 <Typography variant="h5" gutterBottom>
                   {movieInfo?.title}
                 </Typography>
+
+                {/* Thêm phần hiển thị thể loại */}
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+                  {movieInfo?.genres?.map((genre) => (
+                    <Chip
+                      key={genre.id}
+                      label={genre.name}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#e3f2fd",
+                        color: "#1976d2",
+                        "&:hover": {
+                          backgroundColor: "#bbdefb",
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+
                 <Typography variant="body2" color="text.secondary" paragraph>
                   {movieInfo?.description}
                 </Typography>

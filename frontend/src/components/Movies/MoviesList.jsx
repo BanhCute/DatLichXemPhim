@@ -15,6 +15,7 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  Chip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -41,6 +42,7 @@ const MoviesList = () => {
       })
       .catch((err) => {
         console.error("Error fetching movies:", err);
+        setError("Không thể tải danh sách phim");
         setLoading(false);
       });
   }, []);
@@ -162,6 +164,24 @@ const MoviesList = () => {
                   >
                     {movie.title}
                   </Typography>
+                  <Box
+                    sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}
+                  >
+                    {movie.genres?.map((genre) => (
+                      <Chip
+                        key={genre.id}
+                        label={genre.name}
+                        size="small"
+                        sx={{
+                          backgroundColor: "#e3f2fd",
+                          color: "#1976d2",
+                          "&:hover": {
+                            backgroundColor: "#bbdefb",
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
                   <Typography
                     variant="body2"
                     color="text.secondary"

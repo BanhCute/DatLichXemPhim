@@ -297,6 +297,34 @@ const Home = () => {
                         >
                           {movie.title}
                         </Typography>
+
+                        {/* Thêm phần hiển thị thể loại */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 0.5,
+                            flexWrap: "wrap",
+                            mb: 1,
+                          }}
+                        >
+                          {movie.genres?.map((genre) => (
+                            <Chip
+                              key={genre.id}
+                              label={genre.name}
+                              size="small"
+                              sx={{
+                                backgroundColor: "#e3f2fd",
+                                color: "#1976d2",
+                                fontSize: "0.75rem",
+                                height: "24px",
+                                "&:hover": {
+                                  backgroundColor: "#bbdefb",
+                                },
+                              }}
+                            />
+                          ))}
+                        </Box>
+
                         <Box
                           sx={{ display: "flex", alignItems: "center", mb: 1 }}
                         >
