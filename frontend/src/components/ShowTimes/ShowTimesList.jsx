@@ -71,7 +71,6 @@ const ShowTimeList = ({ movieId }) => {
               </>
             }
           />
-
           <Button
             variant="contained"
             color="primary"
