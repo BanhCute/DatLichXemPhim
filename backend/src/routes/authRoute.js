@@ -3,19 +3,30 @@ var router = express.Router();
 var jwt = require("jsonwebtoken");
 let { CreateSuccessRes } = require("../utils/responseHandler");
 let authController = require("../controllers/authController");
-const { CheckAuth } = require("../utils/check_auth");
+const { CheckAuth, CheckRole } = require("../utils/check_auth");
 require("dotenv").config();
 
 router.post("/register", async function (req, res, next) {
   try {
     let body = req.body;
     let newUser = await authController.CreateAnUser(
-      body.email, body.password, body.name, body.role
+      body.email,
+      body.password,
+      body.name,
+      body.role
     );
-    CreateSuccessRes(res, jwt.sign({ 
-        id: newUser.id, email: newUser.email,
-        expire: new Date(Date.now() + 60 * 60 * 1000).getTime()
-      },process.env.JWT_SECRET),200);
+    CreateSuccessRes(
+      res,
+      jwt.sign(
+        {
+          id: newUser.id,
+          email: newUser.email,
+          expire: new Date(Date.now() + 60 * 60 * 1000).getTime(),
+        },
+        process.env.JWT_SECRET
+      ),
+      200
+    );
   } catch (error) {
     next(error);
   }
@@ -73,6 +84,15 @@ router.put("/change-password", CheckAuth, async function (req, res, next) {
   try {
     let user = await authController.ChangePassword(req, res);
     CreateSuccessRes(res, user, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/users", [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let users = await authController.GetAllUsers();
+    CreateSuccessRes(res, users, 200);
   } catch (error) {
     next(error);
   }

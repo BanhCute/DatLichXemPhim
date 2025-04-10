@@ -31,9 +31,24 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { Link, useNavigate } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const AdminMovies = () => {
   const [movies, setMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [open, setOpen] = useState(false);
   const [editMovie, setEditMovie] = useState(null);
   const [formData, setFormData] = useState({
@@ -43,15 +58,31 @@ const AdminMovies = () => {
     imageUrl: "",
   });
   const [error, setError] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(1);
-  const [genres, setGenres] = useState([]);
-  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   useEffect(() => {
     fetchMovies();
     fetchGenres();
   }, []);
+
+  const fetchGenres = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/genres", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setGenres(data.data);
+    } catch (err) {
+      console.error("Error fetching genres:", err);
+    }
+  };
 
   const fetchMovies = async () => {
     try {
@@ -68,39 +99,47 @@ const AdminMovies = () => {
     }
   };
 
-  const fetchGenres = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/genres", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setGenres(data.data);
-    } catch (err) {
-      setError("Không thể tải danh sách thể loại");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-
     try {
+      const token = localStorage.getItem("token");
+
+      // Upload hình ảnh trước nếu có file được chọn
+      let imageUrl = formData.imageUrl;
+      if (selectedFile) {
+        const formDataImage = new FormData();
+        formDataImage.append("image", selectedFile);
+
+        const uploadResponse = await fetch("http://localhost:5000/api/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formDataImage,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Không thể upload hình ảnh");
+        }
+
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.data.path; // Lấy đường dẫn ảnh từ response
+      }
+
+      // Chuẩn bị dữ liệu phim
       const movieData = {
         ...formData,
-        genreIds: selectedGenres,
+        imageUrl, // Sử dụng đường dẫn ảnh mới nếu có upload, không thì giữ nguyên
+        genres: selectedGenres,
       };
 
+      // Gọi API tạo/cập nhật phim
       const url = editMovie
         ? `http://localhost:5000/api/movies/${editMovie.id}`
         : "http://localhost:5000/api/movies";
 
-      const method = editMovie ? "PUT" : "POST";
-
       const response = await fetch(url, {
-        method,
+        method: editMovie ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -108,10 +147,13 @@ const AdminMovies = () => {
         body: JSON.stringify(movieData),
       });
 
-      if (!response.ok) throw new Error("Thao tác không thành công");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Có lỗi xảy ra");
+      }
 
+      // Đóng dialog và refresh danh sách phim
       setOpen(false);
-      fetchMovies();
       setFormData({
         title: "",
         description: "",
@@ -119,9 +161,12 @@ const AdminMovies = () => {
         imageUrl: "",
       });
       setSelectedGenres([]);
-      setEditMovie(null);
-    } catch (err) {
-      setError(err.message);
+      setSelectedFile(null);
+      setImagePreview("");
+      fetchMovies();
+    } catch (error) {
+      console.error("Error:", error);
+      setError(error.message);
     }
   };
 
@@ -137,9 +182,12 @@ const AdminMovies = () => {
         },
       });
 
-      if (!response.ok) throw new Error("Không thể xóa phim");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
 
-      fetchMovies();
+      await fetchMovies();
     } catch (err) {
       setError(err.message);
     }
@@ -156,6 +204,15 @@ const AdminMovies = () => {
       case 2:
         navigate("/admin/genres");
         break;
+      case 3:
+        navigate("/admin/users");
+        break;
+      case 4:
+        navigate("/admin/bookings");
+        break;
+      case 5:
+        navigate("/admin/showtimes");
+        break;    
     }
   };
 
@@ -166,9 +223,27 @@ const AdminMovies = () => {
     setSelectedGenres(typeof value === "string" ? value.split(",") : value);
   };
 
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // Tạo preview URL cho ảnh
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   useEffect(() => {
     if (editMovie) {
+      setFormData({
+        title: editMovie.title,
+        description: editMovie.description,
+        duration: editMovie.duration.toString(),
+        imageUrl: editMovie.imageUrl || "",
+      });
       setSelectedGenres(editMovie.genres?.map((genre) => genre.id) || []);
+    } else {
+      setSelectedGenres([]);
     }
   }, [editMovie]);
 
@@ -195,11 +270,23 @@ const AdminMovies = () => {
           <Tab label="DASHBOARD" />
           <Tab label="QUẢN LÝ PHIM" />
           <Tab label="QUẢN LÝ THỂ LOẠI" />
+          <Tab label="QUẢN LÝ NGƯỜI DÙNG" />
+          <Tab label="QUẢN LÝ ĐẶT VÉ" />
+          <Tab label="QUẢN LÝ SUẤT CHIẾU" />
         </Tabs>
       </Paper>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h4">Quản Lý Phim</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mb: 3,
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4" sx={{ color: "#e50914", fontWeight: "bold" }}>
+          Quản Lý Phim
+        </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -211,8 +298,13 @@ const AdminMovies = () => {
               duration: "",
               imageUrl: "",
             });
-            setSelectedGenres([]);
             setOpen(true);
+          }}
+          sx={{
+            backgroundColor: "#e50914",
+            "&:hover": {
+              backgroundColor: "#b81d24",
+            },
           }}
         >
           Thêm Phim Mới
@@ -228,11 +320,12 @@ const AdminMovies = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell>Tên Phim</TableCell>
               <TableCell>Thời Lượng</TableCell>
               <TableCell>Thể Loại</TableCell>
-              <TableCell>Thao Tác</TableCell>
+              <TableCell>Hình Ảnh</TableCell>
+              <TableCell align="right">Thao Tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -248,10 +341,10 @@ const AdminMovies = () => {
                         label={genre.name}
                         size="small"
                         sx={{
-                          backgroundColor: "#1e3a8a",
+                          backgroundColor: "#e50914",
                           color: "white",
                           "&:hover": {
-                            backgroundColor: "#1e4899",
+                            backgroundColor: "#b81d24",
                           },
                         }}
                       />
@@ -259,17 +352,34 @@ const AdminMovies = () => {
                   </Box>
                 </TableCell>
                 <TableCell>
+                  {movie.imageUrl && (
+                    <img
+                      src={movie.imageUrl}
+                      alt={movie.title}
+                      style={{ height: 50, width: "auto" }}
+                    />
+                  )}
+                </TableCell>
+                <TableCell align="right">
                   <IconButton
                     onClick={() => {
                       setEditMovie(movie);
-                      setFormData(movie);
-                      setSelectedGenres(movie.genres?.map((g) => g.id) || []);
+                      setFormData({
+                        title: movie.title,
+                        description: movie.description,
+                        duration: movie.duration.toString(),
+                        imageUrl: movie.imageUrl || "",
+                      });
                       setOpen(true);
                     }}
+                    sx={{ color: "#1976d2" }}
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(movie.id)}>
+                  <IconButton
+                    onClick={() => handleDelete(movie.id)}
+                    sx={{ color: "#d32f2f" }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -293,6 +403,7 @@ const AdminMovies = () => {
             margin="dense"
             label="Tên phim"
             fullWidth
+            required
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
@@ -302,6 +413,7 @@ const AdminMovies = () => {
             margin="dense"
             label="Mô tả"
             fullWidth
+            required
             multiline
             rows={4}
             value={formData.description}
@@ -313,39 +425,78 @@ const AdminMovies = () => {
             margin="dense"
             label="Thời lượng (phút)"
             fullWidth
+            required
             type="number"
             value={formData.duration}
             onChange={(e) =>
               setFormData({ ...formData, duration: e.target.value })
             }
           />
-          <TextField
-            margin="dense"
-            label="URL Hình ảnh"
-            fullWidth
-            value={formData.imageUrl}
-            onChange={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
-            }
-          />
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Button
+              component="label"
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                backgroundColor: "#1976d2",
+                "&:hover": {
+                  backgroundColor: "#1565c0",
+                },
+              }}
+            >
+              Chọn hình ảnh
+              <VisuallyHiddenInput
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+              />
+            </Button>
+
+            {imagePreview && (
+              <Box sx={{ mt: 2 }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "200px",
+                    objectFit: "contain",
+                  }}
+                />
+              </Box>
+            )}
+
+            {formData.imageUrl && !imagePreview && (
+              <Box sx={{ mt: 2 }}>
+                <img
+                  src={formData.imageUrl}
+                  alt="Current"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "200px",
+                    objectFit: "contain",
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
           <FormControl fullWidth margin="dense">
-            <InputLabel id="genres-label">Thể loại</InputLabel>
+            <InputLabel>Thể loại</InputLabel>
             <Select
-              labelId="genres-label"
               multiple
               value={selectedGenres}
               onChange={handleGenreChange}
               input={<OutlinedInput label="Thể loại" />}
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {selected.map((genreId) => {
-                    const genre = genres.find((g) => g.id === genreId);
+                  {selected.map((value) => {
+                    const genre = genres.find((g) => g.id === value);
                     return (
                       <Chip
-                        key={genreId}
+                        key={value}
                         label={genre?.name}
                         sx={{
-                          backgroundColor: "#1e3a8a",
+                          backgroundColor: "#e50914",
                           color: "white",
                         }}
                       />
@@ -363,8 +514,19 @@ const AdminMovies = () => {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Hủy</Button>
-          <Button onClick={handleSubmit} variant="contained">
+          <Button onClick={() => setOpen(false)} sx={{ color: "#9e9e9e" }}>
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: "#e50914",
+              "&:hover": {
+                backgroundColor: "#b81d24",
+              },
+            }}
+          >
             {editMovie ? "Cập Nhật" : "Thêm"}
           </Button>
         </DialogActions>

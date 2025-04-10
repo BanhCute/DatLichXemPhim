@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import MovieIcon from "@mui/icons-material/Movie";
 import CategoryIcon from "@mui/icons-material/Category";
+import PeopleIcon from "@mui/icons-material/People";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 import { Link, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
@@ -28,6 +30,15 @@ const AdminDashboard = () => {
         break;
       case 2:
         navigate("/admin/genres");
+        break;
+      case 3:
+        navigate("/admin/users");
+        break;
+      case 4:
+        navigate("/admin/bookings");
+        break;
+      case 5:
+        navigate("/admin/showtimes");
         break;
     }
   };
@@ -46,6 +57,26 @@ const AdminDashboard = () => {
       description: "Quản lý các thể loại phim",
       link: "/admin/genres",
       color: "#141414",
+    },
+    {
+      title: "Quản lý Người Dùng",
+      icon: <PeopleIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      description: "Quản lý thông tin và phân quyền người dùng",
+      link: "/admin/users",
+      color: "#141414",
+    },
+    {
+      title: "Quản lý Đặt Vé",
+      icon: <ReceiptIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      description: "Xem thông tin đặt vé của người dùng",
+      link: "/admin/bookings",
+      color: "#141414",
+    },
+    {
+      title: "Quản lý Suất Chiếu",
+      icon: <ReceiptIcon sx={{ fontSize: 60, color: "#e50914" }} />,
+      description: "Xem thông tin đặt vé của người dùng",
+      link: "/admin/showtimes",
     },
   ];
 
@@ -73,6 +104,8 @@ const AdminDashboard = () => {
           <Tab label="DASHBOARD" />
           <Tab label="QUẢN LÝ PHIM" />
           <Tab label="QUẢN LÝ THỂ LOẠI" />
+          <Tab label="QUẢN LÝ NGƯỜI DÙNG" />
+          <Tab label="QUẢN LÝ ĐẶT VÉ" />
         </Tabs>
       </Paper>
 

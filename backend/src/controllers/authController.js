@@ -132,6 +132,23 @@ const authController = {
       throw new Error(error.message);
     }
   },
+
+  GetAllUsers: async function () {
+    try {
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      throw new Error("Không thể lấy danh sách người dùng");
+    }
+  },
 };
 
 module.exports = authController;

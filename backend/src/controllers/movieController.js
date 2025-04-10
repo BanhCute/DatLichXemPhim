@@ -66,33 +66,85 @@ const movieController = {
 
   Create: async function (req) {
     try {
-      let { title, description, duration, imageUrl } = req.body;
-      let movie = await prisma.movie.create({
-        data: { title, description, duration, imageUrl },
+      const { title, description, duration, imageUrl, genres } = req.body;
+
+      const movie = await prisma.movie.create({
+        data: {
+          title,
+          description,
+          duration: parseInt(duration),
+          imageUrl,
+          // Tạo quan hệ với genres
+          genres: {
+            create: genres
+              ? genres.map((genreId) => ({
+                  genreId: parseInt(genreId),
+                }))
+              : [],
+          },
+        },
+        include: {
+          genres: {
+            include: {
+              genre: true,
+            },
+          },
+        },
       });
-      return movie;
+
+      // Chuyển đổi dữ liệu trước khi trả về
+      const transformedMovie = {
+        ...movie,
+        genres: movie.genres.map((mg) => mg.genre),
+      };
+
+      return transformedMovie;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(`Không thể tạo phim: ${error.message}`);
     }
   },
 
   Update: async function (req) {
     try {
-      let { title, description, duration, imageUrl } = req.body;
+      const { title, description, duration, imageUrl, genres } = req.body;
+      const movieId = parseInt(req.params.id);
 
-      let movie = await prisma.movie.update({
-        where: { id: parseInt(req.params.id) },
+      // Cập nhật thông tin phim và thể loại
+      const movie = await prisma.movie.update({
+        where: { id: movieId },
         data: {
           title,
           description,
-          duration,
+          duration: parseInt(duration),
           imageUrl,
+          // Cập nhật quan hệ với genres
+          genres: {
+            // Xóa tất cả quan hệ cũ
+            deleteMany: {},
+            // Tạo quan hệ mới
+            create: genres.map((genreId) => ({
+              genreId: parseInt(genreId),
+            })),
+          },
+        },
+        include: {
+          genres: {
+            include: {
+              genre: true,
+            },
+          },
         },
       });
 
-      return movie;
+      // Chuyển đổi dữ liệu trước khi trả về
+      const transformedMovie = {
+        ...movie,
+        genres: movie.genres.map((mg) => mg.genre),
+      };
+
+      return transformedMovie;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(`Không thể cập nhật phim: ${error.message}`);
     }
   },
 

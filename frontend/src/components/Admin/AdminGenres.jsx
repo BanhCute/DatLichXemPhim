@@ -118,6 +118,16 @@ const AdminGenres = () => {
       case 2:
         navigate("/admin/genres");
         break;
+      case 3:
+        navigate("/admin/users");
+        break;
+      case 4:
+        navigate("/admin/bookings");
+        break;
+      case 5:
+        navigate("/admin/showtimes");
+        break;
+      
     }
   };
 
@@ -145,6 +155,9 @@ const AdminGenres = () => {
           <Tab label="DASHBOARD" />
           <Tab label="QUẢN LÝ PHIM" />
           <Tab label="QUẢN LÝ THỂ LOẠI" />
+          <Tab label="QUẢN LÝ NGƯỜI DÙNG" />
+          <Tab label="QUẢN LÝ ĐẶT VÉ" />
+          <Tab label="QUẢN LÝ SUẤT CHIẾU" />
         </Tabs>
       </Paper>
 

@@ -19,6 +19,7 @@ const genreRoutes = require("./routes/genreRoute");
 const movieGenreRoutes = require("./routes/movieGenreRoute");
 const paymentRoutes = require("./routes/paymentRoute");
 const promotionRoutes = require("./routes/promotionRoute");
+const uploadRoutes = require("./routes/uploadRoute");
 
 // Đăng ký routes
 app.use("/api/auth", authRoutes); // Các API liên quan đến auth
@@ -30,6 +31,7 @@ app.use("/api/genres", genreRoutes); // Các API liên quan đến thể loại 
 app.use("/api/movie-genres", movieGenreRoutes); // Các API liên quan đến thể loại phim
 app.use("/api/payments", paymentRoutes); // Các API liên quan đến thanh toán
 app.use("/api/promotions", promotionRoutes); // Các API liên quan đến khuyến mãi
+app.use("/api/upload", uploadRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
