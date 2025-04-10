@@ -3,6 +3,7 @@ var router = express.Router();
 let { CheckAuth , CheckRole } = require("../utils/check_auth");
 let showTimeController = require("../controllers/showTimeController");
 let { CreateSuccessRes } = require("../utils/responseHandler");
+const { ro } = require("date-fns/locale");
 require('dotenv').config();
 
 router.get("/", async (req, res, next) => {
@@ -38,6 +39,24 @@ router.get("/:id", async (req, res, next) => {
     CreateSuccessRes(res, showTime, 200);
   } catch (error) {
     next(error);
+  }
+});
+
+router.put("/:id", [CheckAuth, CheckRole], async (req, res, next) => {
+  try {
+    let showTime = await showTimeController.Update(req);
+    CreateSuccessRes(res, showTime, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", [CheckAuth, CheckRole], async (req, res) => {
+  try {
+    let showTime = await showTimeController.Delete(req);
+    CreateSuccessRes(res, showTime, 200);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

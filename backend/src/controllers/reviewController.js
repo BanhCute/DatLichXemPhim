@@ -1,4 +1,5 @@
 let { PrismaClient } = require("@prisma/client");
+const { Update } = require("./authController");
 
 const prisma = new PrismaClient();
 
@@ -19,5 +20,30 @@ module.exports = {
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  },
+
+  Update: async function (req) {
+    try {
+      let { rating, comment } = req.body;
+      let review = await prisma.review.update({
+        where: { id: parseInt(req.params.id) },
+        data: { rating, comment },
+      });
+      return review;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  Delete: async function (req) {
+    try {
+      let reviewId = parseInt(req.params.id);
+      let deletedReview = await prisma.review.delete({
+        where: { id: reviewId },
+      });
+      return deletedReview;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
 };

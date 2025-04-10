@@ -43,4 +43,22 @@ router.get('/me', CheckAuth, async function (req, res, next) {
   }
 });
 
+router.put('/:id', CheckAuth, async function (req, res, next) {
+  try {
+    let user = await authController.Update(req);
+    CreateSuccessRes(res, user, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', CheckAuth, async function (req, res, next) {
+  try {
+    let user = await authController.Delete(req);
+    CreateSuccessRes(res, user, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

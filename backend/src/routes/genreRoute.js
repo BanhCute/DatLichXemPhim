@@ -24,4 +24,22 @@ router.post('/', [CheckAuth, CheckRole], async function (req, res, next) {
   }
 });
 
+router.put('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let genre = await genreController.Update(req);
+    CreateSuccessRes(res, genre, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', [CheckAuth, CheckRole], async function (req, res, next) {
+  try {
+    let genre = await genreController.Delete(req);
+    CreateSuccessRes(res, genre, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
