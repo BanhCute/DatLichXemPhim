@@ -10,9 +10,6 @@ module.exports = {
                 showTime: true,
                 seats: true,
             },
-            where: {
-                isDeleted: false,
-            },
         });
     },
 
