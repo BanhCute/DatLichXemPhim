@@ -15,12 +15,14 @@ import Home from "./components/Home/Home";
 function App() {
   return (
     <BrowserRouter>
-      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
         <Navbar />
         <Box component="main" sx={{ flexGrow: 1 }}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<MoviesList />} />
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
