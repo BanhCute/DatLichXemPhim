@@ -18,6 +18,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import PaymentIcon from "@mui/icons-material/Payment";
 
 const BookingSuccess = () => {
   const { bookingId } = useParams();
@@ -54,6 +55,25 @@ const BookingSuccess = () => {
     fetchBookingDetails();
   }, [bookingId]);
 
+  const getPaymentMethodLabel = (method) => {
+    switch (method?.toUpperCase()) {
+      case "CASH":
+        return "Tiền mặt";
+      case "PAYPAL":
+        return "PayPal";
+      case "CREDIT_CARD":
+        return "Thẻ tín dụng";
+      default:
+        return "Không xác định";
+    }
+  };
+
+  const paymentIcons = {
+    CASH: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+    CREDIT_CARD: "https://cdn-icons-png.flaticon.com/512/179/179457.png",
+    PAYPAL: "https://cdn-icons-png.flaticon.com/512/174/174861.png",
+  };
+
   if (loading) {
     return (
       <Box
@@ -81,28 +101,32 @@ const BookingSuccess = () => {
   }
 
   return (
-    <Box sx={{ 
-      backgroundColor: "#f5f5f5", 
-      minHeight: "90vh",
-      py: 4 
-    }}>
+    <Box
+      sx={{
+        backgroundColor: "#f5f5f5",
+        minHeight: "90vh",
+        py: 4,
+      }}
+    >
       <Container maxWidth="md">
-        <Paper 
-          elevation={3} 
-          sx={{ 
+        <Paper
+          elevation={3}
+          sx={{
             p: 4,
             borderRadius: 2,
             background: "linear-gradient(to bottom, #141414, #1f1f1f)",
             color: "white",
           }}
         >
-          <Box sx={{ 
-            textAlign: "center",
-            mb: 4,
-          }}>
-            <CheckCircleIcon 
-              sx={{ 
-                fontSize: 80, 
+          <Box
+            sx={{
+              textAlign: "center",
+              mb: 4,
+            }}
+          >
+            <CheckCircleIcon
+              sx={{
+                fontSize: 80,
                 color: "#4CAF50",
                 mb: 2,
                 animation: "pulse 2s infinite",
@@ -110,15 +134,15 @@ const BookingSuccess = () => {
                   "0%": { transform: "scale(1)" },
                   "50%": { transform: "scale(1.1)" },
                   "100%": { transform: "scale(1)" },
-                }
-              }} 
+                },
+              }}
             />
-            <Typography 
-              variant="h4" 
-              sx={{ 
+            <Typography
+              variant="h4"
+              sx={{
                 fontWeight: "bold",
                 color: "#4CAF50",
-                mb: 1
+                mb: 1,
               }}
             >
               Đặt vé thành công!
@@ -133,24 +157,28 @@ const BookingSuccess = () => {
           {booking && (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Box sx={{ 
-                  display: "flex", 
-                  alignItems: "center",
-                  mb: 2
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
                   <MovieIcon sx={{ mr: 2, color: "#e50914" }} />
                   <Typography variant="h5" sx={{ fontWeight: "500" }}>
                     {booking.showTime?.movie?.title}
                   </Typography>
                 </Box>
 
-                <Box sx={{ 
-                  display: "flex", 
-                  gap: 1, 
-                  flexWrap: "wrap",
-                  mb: 3,
-                  ml: 5
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    flexWrap: "wrap",
+                    mb: 3,
+                    ml: 5,
+                  }}
+                >
                   {booking.showTime?.movie?.genres?.map((genre) => (
                     <Chip
                       key={genre.id}
@@ -159,9 +187,9 @@ const BookingSuccess = () => {
                       sx={{
                         backgroundColor: "#e50914",
                         color: "white",
-                        '&:hover': {
+                        "&:hover": {
                           backgroundColor: "#b81d24",
-                        }
+                        },
                       }}
                     />
                   ))}
@@ -169,16 +197,19 @@ const BookingSuccess = () => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <Box sx={{ 
-                  backgroundColor: "rgba(255,255,255,0.05)", 
-                  p: 2,
-                  borderRadius: 1,
-                  mb: 2
-                }}>
+                <Box
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    p: 2,
+                    borderRadius: 1,
+                    mb: 2,
+                  }}
+                >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <AccessTimeIcon sx={{ mr: 1, color: "#e50914" }} />
                     <Typography variant="body1">
-                      Suất chiếu: {new Date(booking.showTime?.startTime).toLocaleString()}
+                      Suất chiếu:{" "}
+                      {new Date(booking.showTime?.startTime).toLocaleString()}
                     </Typography>
                   </Box>
 
@@ -192,24 +223,68 @@ const BookingSuccess = () => {
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <EventSeatIcon sx={{ mr: 1, color: "#e50914" }} />
                     <Typography variant="body1">
-                      Ghế: {booking.seats?.map(seat => seat.number).join(", ")}
+                      Ghế:{" "}
+                      {booking.seats?.map((seat) => seat.number).join(", ")}
                     </Typography>
                   </Box>
                 </Box>
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <Box sx={{ 
-                  backgroundColor: "rgba(255,255,255,0.05)", 
-                  p: 2,
-                  borderRadius: 1,
-                  mb: 2
-                }}>
+                <Box
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    p: 2,
+                    borderRadius: 1,
+                    mb: 2,
+                  }}
+                >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <ConfirmationNumberIcon sx={{ mr: 1, color: "#e50914" }} />
                     <Typography variant="h6">
                       Tổng tiền: {booking.totalPrice.toLocaleString()}đ
                     </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <img
+                        src={
+                          paymentIcons[booking.payments?.[0]?.method] ||
+                          paymentIcons.CASH
+                        }
+                        alt="Payment method"
+                        style={{
+                          width: 24,
+                          height: 24,
+                          objectFit: "contain",
+                        }}
+                      />
+                      <Typography sx={{ color: "white" }}>
+                        Thanh toán qua:
+                      </Typography>
+                      <Chip
+                        label={getPaymentMethodLabel(
+                          booking.payments?.[0]?.method
+                        )}
+                        size="small"
+                        sx={{
+                          ml: 1,
+                          backgroundColor:
+                            booking.payments?.[0]?.method === "CASH"
+                              ? "rgba(102, 187, 106, 0.8)"
+                              : booking.payments?.[0]?.method === "PAYPAL"
+                              ? "rgba(33, 150, 243, 0.8)"
+                              : booking.payments?.[0]?.method === "CREDIT_CARD"
+                              ? "rgba(156, 39, 176, 0.8)"
+                              : "rgba(158, 158, 158, 0.8)",
+                          color: "white",
+                          "& .MuiChip-label": {
+                            fontWeight: 500,
+                          },
+                        }}
+                      />
+                    </Box>
                   </Box>
 
                   {booking.promotion && (
@@ -225,24 +300,26 @@ const BookingSuccess = () => {
             </Grid>
           )}
 
-          <Box sx={{ 
-            mt: 4, 
-            display: "flex", 
-            gap: 2, 
-            justifyContent: "center",
-            flexWrap: "wrap"
-          }}>
+          <Box
+            sx={{
+              mt: 4,
+              display: "flex",
+              gap: 2,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <Button
               component={Link}
               to="/bookings"
               variant="contained"
               sx={{
                 backgroundColor: "#e50914",
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: "#b81d24",
                 },
                 px: 4,
-                py: 1.5
+                py: 1.5,
               }}
               startIcon={<ConfirmationNumberIcon />}
             >
@@ -255,12 +332,12 @@ const BookingSuccess = () => {
               sx={{
                 color: "white",
                 borderColor: "white",
-                '&:hover': {
+                "&:hover": {
                   borderColor: "#e50914",
                   color: "#e50914",
                 },
                 px: 4,
-                py: 1.5
+                py: 1.5,
               }}
               startIcon={<MovieIcon />}
             >

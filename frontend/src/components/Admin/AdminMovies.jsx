@@ -182,14 +182,20 @@ const AdminMovies = () => {
         },
       });
 
+      const data = await response.json(); // Đọc response body
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
+        throw new Error(
+          data.message ||
+            "Không thể xóa phim. Phim có thể đang có suất chiếu hoặc đánh giá."
+        );
       }
 
       await fetchMovies();
+      setError(""); // Xóa thông báo lỗi nếu thành công
     } catch (err) {
-      setError(err.message);
+      console.error("Delete error:", err);
+      setError(err.message || "Không thể xóa phim. Vui lòng thử lại sau.");
     }
   };
 
@@ -212,7 +218,7 @@ const AdminMovies = () => {
         break;
       case 5:
         navigate("/admin/showtimes");
-        break;    
+        break;
     }
   };
 

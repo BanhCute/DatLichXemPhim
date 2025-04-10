@@ -1,11 +1,12 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-let reviewController = require('../controllers/reviewController');
-let { CreateSuccessRes } = require('../utils/responseHandler');
-const { CheckAuth } = require('../utils/check_auth');
-require('dotenv').config();
+let reviewController = require("../controllers/reviewController");
+let { CreateSuccessRes } = require("../utils/responseHandler");
+const { CheckAuth } = require("../utils/check_auth");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-router.get('/', CheckAuth, async function (req, res, next) {
+router.get("/", CheckAuth, async function (req, res, next) {
   try {
     let reviews = await reviewController.GetAll();
     CreateSuccessRes(res, reviews, 200);
@@ -14,17 +15,16 @@ router.get('/', CheckAuth, async function (req, res, next) {
   }
 });
 
-router.post('/', CheckAuth, async function (req, res, next) {
+router.post("/", CheckAuth, async function (req, res, next) {
   try {
-    let body = req.body;
-    let newReview = await reviewController.Create(body);
+    let newReview = await reviewController.Create(req);
     CreateSuccessRes(res, newReview, 201);
   } catch (error) {
     next(error);
   }
 });
 
-router.put('/:id', CheckAuth, async function (req, res, next) {
+router.put("/:id", CheckAuth, async function (req, res, next) {
   try {
     let review = await reviewController.Update(req);
     CreateSuccessRes(res, review, 200);
@@ -33,7 +33,7 @@ router.put('/:id', CheckAuth, async function (req, res, next) {
   }
 });
 
-router.delete('/:id', CheckAuth, async function (req, res, next) {
+router.delete("/:id", CheckAuth, async function (req, res, next) {
   try {
     let review = await reviewController.Delete(req);
     CreateSuccessRes(res, review, 200);

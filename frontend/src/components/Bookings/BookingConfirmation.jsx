@@ -11,6 +11,11 @@ import {
   Chip,
   TextField,
   Alert,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import TheatersIcon from "@mui/icons-material/Theaters";
@@ -29,6 +34,14 @@ const BookingConfirmation = () => {
   const [promoCode, setPromoCode] = useState("");
   const [promotion, setPromotion] = useState(null);
   const [promoError, setPromoError] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
+
+  // Thêm các đường dẫn hình ảnh
+  const paymentIcons = {
+    CASH: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+    CREDIT_CARD: "https://cdn-icons-png.flaticon.com/512/179/179457.png",
+    PAYPAL: "https://cdn-icons-png.flaticon.com/512/174/174861.png",
+  };
 
   const formatDateTime = (dateString) => {
     return new Date(dateString).toLocaleString("vi-VN", {
@@ -82,6 +95,7 @@ const BookingConfirmation = () => {
         showTimeId: showTime.id,
         seatNumbers: selectedSeats.map((seat) => seat.number),
         promotionCode: promoCode || null,
+        paymentMethod: paymentMethod,
       };
 
       console.log("Sending booking data:", bookingData);
@@ -341,6 +355,106 @@ const BookingConfirmation = () => {
                 Đã áp dụng mã giảm giá {promotion.discount}%
               </Alert>
             )}
+          </Paper>
+        </Box>
+
+        {/* Thêm phần chọn phương thức thanh toán */}
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <PaymentIcon sx={{ mr: 1 }} />
+            Phương thức thanh toán
+          </Typography>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+            <FormControl component="fieldset">
+              <RadioGroup
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <FormControlLabel
+                  value="CASH"
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <img
+                        src={paymentIcons.CASH}
+                        alt="Cash"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          marginRight: 10,
+                          objectFit: "contain",
+                        }}
+                      />
+                      <Typography>Tiền mặt</Typography>
+                    </Box>
+                  }
+                  sx={{
+                    "& .MuiFormControlLabel-label": {
+                      display: "flex",
+                      alignItems: "center",
+                    },
+                  }}
+                />
+                <FormControlLabel
+                  value="CREDIT_CARD"
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <img
+                        src={paymentIcons.CREDIT_CARD}
+                        alt="Credit Card"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          marginRight: 10,
+                          objectFit: "contain",
+                        }}
+                      />
+                      <Typography>Thẻ tín dụng</Typography>
+                    </Box>
+                  }
+                  sx={{
+                    "& .MuiFormControlLabel-label": {
+                      display: "flex",
+                      alignItems: "center",
+                    },
+                  }}
+                />
+                <FormControlLabel
+                  value="PAYPAL"
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <img
+                        src={paymentIcons.PAYPAL}
+                        alt="PayPal"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          marginRight: 10,
+                          objectFit: "contain",
+                        }}
+                      />
+                      <Typography>PayPal</Typography>
+                    </Box>
+                  }
+                  sx={{
+                    "& .MuiFormControlLabel-label": {
+                      display: "flex",
+                      alignItems: "center",
+                    },
+                  }}
+                />
+              </RadioGroup>
+            </FormControl>
           </Paper>
         </Box>
 

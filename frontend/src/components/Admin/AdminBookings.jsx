@@ -205,9 +205,7 @@ const AdminBookings = () => {
               <Box sx={{ mt: 1 }}>
                 <Typography>
                   <strong>Phương thức thanh toán:</strong>{" "}
-                  {getPaymentMethodLabel(
-                    booking.payments?.[0]?.method || "CASH"
-                  )}
+                  {getPaymentMethodLabel(booking.payments?.[0]?.method)}
                 </Typography>
                 <Typography>
                   <strong>Giá vé:</strong>{" "}
@@ -349,7 +347,7 @@ const AdminBookings = () => {
                   <TableCell>
                     <Chip
                       label={getPaymentMethodLabel(
-                        booking.payments?.[0]?.method || "CASH"
+                        booking.payments?.[0]?.method
                       )}
                       color={
                         booking.payments?.[0]?.method === "CASH"

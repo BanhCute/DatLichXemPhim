@@ -67,6 +67,33 @@ const BookingHistory = () => {
     }
   };
 
+  // Thêm hàm để chuyển đổi payment method thành text tiếng Việt
+  const getPaymentMethodLabel = (booking) => {
+    // Nếu có payment thì lấy method từ payment
+    if (booking.payments && booking.payments.length > 0) {
+      const method = booking.payments[0].method;
+      switch (method) {
+        case "CASH":
+          return "Tiền mặt";
+        case "PAYPAL":
+          return "PayPal";
+        case "CREDIT_CARD":
+          return "Thẻ tín dụng";
+        default:
+          return "Không xác định";
+      }
+    }
+    // Nếu không có payment thì mặc định là CASH
+    return "Tiền mặt";
+  };
+
+  // Thêm object chứa đường dẫn hình ảnh
+  const paymentIcons = {
+    CASH: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+    CREDIT_CARD: "https://cdn-icons-png.flaticon.com/512/179/179457.png",
+    PAYPAL: "https://cdn-icons-png.flaticon.com/512/174/174861.png",
+  };
+
   if (loading) {
     return (
       <Box
@@ -327,6 +354,50 @@ const BookingHistory = () => {
                       />
                     </Box>
                   )}
+
+                  {/* Thêm phần hiển thị phương thức thanh toán */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mt: 2,
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      borderRadius: 1,
+                      p: 1.5,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <img
+                        src={
+                          paymentIcons[booking.payments?.[0]?.method] ||
+                          paymentIcons.CASH
+                        }
+                        alt="Payment method"
+                        style={{
+                          width: 24,
+                          height: 24,
+                          objectFit: "contain",
+                        }}
+                      />
+                      <Typography sx={{ color: "white" }}>
+                        Thanh toán qua:
+                      </Typography>
+                      <Chip
+                        label={getPaymentMethodLabel(booking)}
+                        size="small"
+                        sx={{ ml: 1 }}
+                        color={
+                          !booking.payments || !booking.payments[0]
+                            ? "success"
+                            : booking.payments[0].method === "PAYPAL"
+                            ? "primary"
+                            : booking.payments[0].method === "CREDIT_CARD"
+                            ? "info"
+                            : "success"
+                        }
+                      />
+                    </Box>
+                  </Box>
                 </Box>
               </Card>
             </Grid>

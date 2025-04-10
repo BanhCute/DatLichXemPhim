@@ -151,32 +151,20 @@ const movieController = {
   Delete: async function (req) {
     try {
       const movieId = parseInt(req.params.id);
-      const movieGenres = await prisma.movieGenre.findMany({
-        where: { movieId: movieId },
-      });
-      if (movieGenres.length > 0) {
-        throw new Error("Không thể xóa phim vì đang liên kết với thể loại");
-      }
-      let showTimes = await prisma.showTime.findMany({
-        where: { movieId: movieId },
-      });
-      if (showTimes.length > 0) {
-        const bookings = await prisma.booking.findMany({
-          where: {
-            showTimeId: { in: showTimes.map((st) => st.id) },
-          },
-        });
-        if (bookings.length > 0) {
-          throw new Error("Không thể xóa phim vì đã có người đặt vé");
-        }
-        throw new Error("Không thể xóa phim vì phim đang có lịch chiếu");
-      }
-      let deletedMovie = await prisma.movie.delete({
+
+      // Xóa phim trực tiếp, các bảng liên quan sẽ tự động xóa theo cascade
+      const deletedMovie = await prisma.movie.delete({
         where: { id: movieId },
+        include: {
+          genres: true,
+          showTimes: true,
+          reviews: true,
+        },
       });
+
       return deletedMovie;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error("Không thể xóa phim: " + error.message);
     }
   },
 };

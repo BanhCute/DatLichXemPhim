@@ -13,6 +13,11 @@ const bookingController = {
             },
           },
           seats: true,
+          payments: true,
+          promotion: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
       return res.json({ data: bookings });
@@ -43,6 +48,7 @@ const bookingController = {
           },
           seats: true,
           promotion: true,
+          payments: true,
         },
       });
 
@@ -64,7 +70,7 @@ const bookingController = {
 
   Create: async function (req, res) {
     try {
-      let { showTimeId, seatNumbers, promotionCode } = req.body;
+      let { showTimeId, seatNumbers, promotionCode, paymentMethod } = req.body;
 
       // Kiểm tra dữ liệu đầu vào
       if (
@@ -157,8 +163,15 @@ const bookingController = {
             userId,
             showTimeId: showTimeIdInt,
             totalPrice,
-            status: "CONFIRMED", // Đổi từ PENDING sang CONFIRMED
+            status: "CONFIRMED",
             promotionId: promotionId,
+            payments: {
+              create: {
+                amount: totalPrice,
+                method: paymentMethod || "CASH",
+                status: "COMPLETED",
+              },
+            },
           },
           include: {
             promotion: true,
@@ -168,6 +181,7 @@ const bookingController = {
                 movie: true,
               },
             },
+            payments: true,
           },
         });
 
@@ -216,6 +230,7 @@ const bookingController = {
           },
           seats: true,
           promotion: true,
+          payments: true,
         },
         orderBy: {
           createdAt: "desc",
