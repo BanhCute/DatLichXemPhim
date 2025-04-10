@@ -1,35 +1,18 @@
-var express = require("express");
-var router = express.Router();
-let bookingController = require("../controllers/bookingController");
-let { CheckAuth, CheckRole } = require("../utils/check_auth");
-let { CreateSuccessRes } = require("../utils/responseHandler");
-require("dotenv").config();
+const express = require("express");
+const router = express.Router();
+const bookingController = require("../controllers/bookingController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/", [CheckAuth, CheckRole], async (req, res, next) => {
-  try {
-    let bookings = await bookingController.GetAll();
-    CreateSuccessRes(res, bookings, 200);
-  } catch (error) {
-    next(error);
-  }
-});
+// Tất cả routes booking đều cần xác thực
+router.use(authMiddleware);
 
-router.get("/user/:userId", CheckAuth, async (req, res, next) => {
-  try {
-    let bookings = await bookingController.GetByUser(req);
-    CreateSuccessRes(res, bookings, 200);
-  } catch (error) {
-    next(error);
-  }
-});
+// Đặt route my-bookings trước các route khác
+router.get("/my-bookings", bookingController.GetMyBookings);
 
-router.post("/", CheckAuth, async (req, res, next) => {
-  try {
-    let bookingWithDetails = await bookingController.Create(req); 
-    CreateSuccessRes(res, bookingWithDetails, 201);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/", bookingController.GetAll);
+router.get("/:id", bookingController.GetById);
+router.post("/", bookingController.Create);
+router.put("/:id", bookingController.Update);
+router.delete("/:id", bookingController.Delete);
 
 module.exports = router;
