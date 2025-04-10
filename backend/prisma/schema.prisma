@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model User {
@@ -13,10 +13,10 @@ model User {
   password  String
   name      String
   role      Role      @default(USER)
-  bookings  Booking[]  // Quan hệ 1-n với Booking
-  reviews   Review[]   // Quan hệ 1-n với Review
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  reviews   Review[]
 }
 
 model Movie {
@@ -25,107 +25,113 @@ model Movie {
   description String
   duration    Int
   imageUrl    String?
-  showTimes   ShowTime[]   // Quan hệ 1-n với ShowTime
-  genres      MovieGenre[] // Quan hệ n-n với Genre qua MovieGenre
-  reviews     Review[]     // Quan hệ 1-n với Review
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  genres      MovieGenre[]
+  reviews     Review[]
+  showTimes   ShowTime[]
 }
 
 model ShowTime {
   id        Int       @id @default(autoincrement())
   movieId   Int
-  movie     Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade) // Quan hệ 1-n với Movie
   startTime DateTime
   endTime   DateTime
   room      String
   price     Float
-  seats     Seat[]     // Quan hệ 1-n với Seat
-  bookings  Booking[]  // Quan hệ 1-n với Booking
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  seats     Seat[]
+  movie     Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
 }
 
 model Seat {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   number     String
   showTimeId Int
-  showTime   ShowTime  @relation(fields: [showTimeId], references: [id], onDelete: Cascade) // Quan hệ 1-n với ShowTime
-  status     Status    @default(AVAILABLE)
-  bookingId  Int?      // Quan hệ 1-1 với Booking (optional)
-  booking    Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  status     Status   @default(AVAILABLE)
+  bookingId  Int?
+  booking    Booking? @relation(fields: [bookingId], references: [id])
+  showTime   ShowTime @relation(fields: [showTimeId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
   id          Int           @id @default(autoincrement())
   userId      Int
-  user        User          @relation(fields: [userId], references: [id], onDelete: Restrict) // Quan hệ 1-n với User
   showTimeId  Int
-  showTime    ShowTime      @relation(fields: [showTimeId], references: [id], onDelete: Restrict) // Quan hệ 1-n với ShowTime
-  seats       Seat[]        // Quan hệ 1-n với Seat
   totalPrice  Float
   status      BookingStatus @default(PENDING)
-  promotionId Int?          // Quan hệ 1-1 với Promotion (optional)
-  promotion   Promotion?    @relation(fields: [promotionId], references: [id], onDelete: SetNull)
-  payments    Payment[]     // Quan hệ 1-n với Payment
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  promotionId Int?
+  promotion   Promotion?    @relation(fields: [promotionId], references: [id])
+  showTime    ShowTime      @relation(fields: [showTimeId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+  payments    Payment[]
+  seats       Seat[]
 }
 
 model Genre {
   id        Int          @id @default(autoincrement())
   name      String       @unique
-  movies    MovieGenre[] // Quan hệ n-n với Movie qua MovieGenre
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+  movies    MovieGenre[]
 }
 
 model MovieGenre {
   id        Int      @id @default(autoincrement())
   movieId   Int
   genreId   Int
-  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade) // Quan hệ n-n với Movie
-  genre     Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade) // Quan hệ n-n với Genre
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  genre     Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
-  @@unique([movieId, genreId]) // Đảm bảo không trùng lặp cặp movieId và genreId
+  @@unique([movieId, genreId])
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  movieId    Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Quan hệ 1-n với User
-  movie      Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade) // Quan hệ 1-n với Movie
-  rating     Int      @default(0)
-  comment    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int
+  rating    Int      @default(0)
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, movieId]) // Mỗi user chỉ review một movie một lần
+  @@unique([userId, movieId])
 }
 
 model Promotion {
-  id         Int       @id @default(autoincrement())
-  code       String    @unique
-  discount   Float
-  startDate  DateTime
-  endDate    DateTime
-  bookings   Booking[] // Quan hệ 1-n với Booking
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  discount  Float
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
 }
 
 model Payment {
-  id          Int           @id @default(autoincrement())
-  bookingId   Int
-  booking     Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade) // Quan hệ 1-n với Booking
-  amount      Float
-  method      PaymentMethod
-  status      PaymentStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        Int           @id @default(autoincrement())
+  bookingId Int
+  amount    Float
+  method    PaymentMethod
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model playing_with_neon {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float? @db.Real
 }
 
 enum PaymentMethod {

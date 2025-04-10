@@ -26,6 +26,7 @@ function App() {
         <Route path="/booking/confirm" element={<BookingConfirmation />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+  
     </BrowserRouter>
   );
 }
