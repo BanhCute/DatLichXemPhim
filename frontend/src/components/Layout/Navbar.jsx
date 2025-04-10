@@ -22,14 +22,13 @@ const Navbar = () => {
       const token = localStorage.getItem("token");
       setIsLoggedIn(!!token);
     };
-  
+
     checkToken(); // lần đầu render
-  
+
     window.addEventListener("storage", checkToken); // cập nhật khi có event
-  
+
     return () => window.removeEventListener("storage", checkToken);
   }, []);
-  
 
   return (
     <AppBar position="static">
@@ -54,6 +53,9 @@ const Navbar = () => {
               Đăng nhập
             </Button>
           )}
+          <Button color="inherit" component={Link} to="/register">
+            Đăng ký
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>
