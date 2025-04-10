@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Button, Typography, Box } from "@mui/material";
+import { Button, Typography, Box } from "@mui/material";
 
 const SeatSelection = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -8,6 +8,9 @@ const SeatSelection = () => {
     ["A1", "A2", "A3", "A4", "A5"],
     ["B1", "B2", "B3", "B4", "B5"],
     ["C1", "C2", "C3", "C4", "C5"],
+    ["D1", "D2", "D3", "D4", "D5"],
+    ["E1", "E2", "E3", "E4", "E5"],
+    ["F1", "F2", "F3", "F4", "F5"],
   ];
 
   const handleSeatClick = (seat) => {
@@ -17,38 +20,61 @@ const SeatSelection = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Chọn ghế
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h5" fontWeight="bold" gutterBottom textAlign="center">
+        🎟️ Chọn ghế ngồi
       </Typography>
-      <Grid container spacing={1} justifyContent="center">
-        {seats.map((row, i) => (
-          <Grid container item justifyContent="center" key={i} spacing={1}>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 1.5,
+          mt: 2,
+        }}
+      >
+        {seats.map((row, rowIndex) => (
+          <Box key={rowIndex} sx={{ display: "flex", gap: 1 }}>
             {row.map((seat) => (
-              <Grid item key={seat}>
-                <Button
-                  variant={
-                    selectedSeats.includes(seat) ? "contained" : "outlined"
-                  }
-                  onClick={() => handleSeatClick(seat)}
-                  sx={{ minWidth: "50px" }}
-                >
-                  {seat}
-                </Button>
-              </Grid>
+              <Button
+                key={seat}
+                variant={selectedSeats.includes(seat) ? "contained" : "outlined"}
+                color={selectedSeats.includes(seat) ? "success" : "primary"}
+                onClick={() => handleSeatClick(seat)}
+                sx={{
+                  minWidth: 50,
+                  minHeight: 50,
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  transition: "0.2s",
+                  "&:hover": {
+                    backgroundColor: selectedSeats.includes(seat)
+                      ? "success.dark"
+                      : "primary.light",
+                  },
+                }}
+              >
+                {seat}
+              </Button>
             ))}
-          </Grid>
+          </Box>
         ))}
-      </Grid>
-      <Box sx={{ mt: 3 }}>
-        <Typography>Ghế đã chọn: {selectedSeats.join(", ")}</Typography>
+      </Box>
+
+      <Box sx={{ mt: 4, textAlign: "center" }}>
+        <Typography variant="subtitle1">
+          🪑 Ghế đã chọn:{" "}
+          <strong>{selectedSeats.length > 0 ? selectedSeats.join(", ") : "Chưa chọn ghế nào"}</strong>
+        </Typography>
+
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           disabled={selectedSeats.length === 0}
-          sx={{ mt: 2 }}
+          sx={{ mt: 2, px: 4, py: 1.5, fontWeight: "bold", borderRadius: 2 }}
         >
-          Đặt vé
+          ✅ ĐẶT VÉ
         </Button>
       </Box>
     </Box>
