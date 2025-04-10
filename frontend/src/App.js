@@ -8,14 +8,14 @@ import Register from "./components/Auth/Register";
 import SeatSelection from "./components/Bookings/SeatSelection";
 import BookingConfirmation from "./components/Bookings/BookingConfirmation";
 import Profile from "./components/User/Profile";
-
+import Home from "./components/Home/Home";
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<MoviesList />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
@@ -26,7 +26,6 @@ function App() {
         <Route path="/booking/confirm" element={<BookingConfirmation />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
-  
     </BrowserRouter>
   );
 }
