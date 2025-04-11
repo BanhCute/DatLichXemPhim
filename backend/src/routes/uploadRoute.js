@@ -6,14 +6,12 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Sửa lại đường dẫn tuyệt đối
+
 const uploadDir = path.join(
   __dirname,
   "../../../frontend/public/images/movies"
 );
-console.log("Upload directory:", uploadDir); // Log để debug
 
-// Tạo thư mục nếu chưa tồn tại
 if (!fs.existsSync(uploadDir)) {
   try {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -23,17 +21,14 @@ if (!fs.existsSync(uploadDir)) {
   }
 }
 
-// Cấu hình multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Kiểm tra lại thư mục tồn tại trước khi upload
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    // Giữ tên file gốc để dễ quản lý
     const uniqueSuffix = Date.now();
     const ext = path.extname(file.originalname);
     cb(null, `${uniqueSuffix}${ext}`);
@@ -68,7 +63,6 @@ router.post("/", CheckAuth, (req, res, next) => {
         throw new Error("Không có file được upload");
       }
 
-      // Kiểm tra file đã được tạo thành công
       const filePath = path.join(uploadDir, req.file.filename);
       if (!fs.existsSync(filePath)) {
         throw new Error("File không được tạo thành công");

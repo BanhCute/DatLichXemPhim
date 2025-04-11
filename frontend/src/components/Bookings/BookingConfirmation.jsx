@@ -103,7 +103,6 @@ const BookingConfirmation = () => {
       const response = await fetch(
         "http://localhost:5000/api/bookings/create",
         {
-          // Sửa đường dẫn API
           method: "POST",
           headers: {
             "Content-Type": "application/json",

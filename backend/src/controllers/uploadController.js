@@ -5,7 +5,6 @@ const uploadController = {
         throw new Error("Không có file được upload");
       }
 
-      // Trả về thông tin file đã upload
       return {
         path: `/images/movies/${req.file.filename}`,
         filename: req.file.filename,
