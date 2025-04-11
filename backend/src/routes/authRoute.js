@@ -62,8 +62,18 @@ router.get("/me", CheckAuth, async function (req, res, next) {
   }
 });
 
+router.put("/change-password", CheckAuth, async function (req, res, next) {
+  try {
+    let user = await authController.ChangePassword(req, res);
+    CreateSuccessRes(res, user, 200);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.put("/:id", CheckAuth, async function (req, res, next) {
   try {
+    console.log("1");
     let user = await authController.Update(req);
     CreateSuccessRes(res, user, 200);
   } catch (error) {
@@ -74,15 +84,6 @@ router.put("/:id", CheckAuth, async function (req, res, next) {
 router.delete("/:id", CheckAuth, async function (req, res, next) {
   try {
     let user = await authController.Delete(req);
-    CreateSuccessRes(res, user, 200);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/change-password", CheckAuth, async function (req, res, next) {
-  try {
-    let user = await authController.ChangePassword(req, res);
     CreateSuccessRes(res, user, 200);
   } catch (error) {
     next(error);
