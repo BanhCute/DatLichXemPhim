@@ -1,63 +1,113 @@
 # 🎬 Dự Án Đặt Lịch Xem Phim
 
-![Banner](https://img.shields.io/badge/Status-Đang%20Phát%20Triển-brightgreen)  
-![React](https://img.shields.io/badge/Frontend-React-blue)  
-![Node.js](https://img.shields.io/badge/Backend-Node.js%20%26%20Express-green)  
-![Neon](https://img.shields.io/badge/Database-Neon%20(PostgreSQL)-purple)
+[![Status](https://img.shields.io/badge/Status-Đang%20Phát%20Triển-brightgreen)](https://github.com/BanhCute/DatLichXemPhim)
+[![React](https://img.shields.io/badge/Frontend-React-blue)](https://reactjs.org/)
+[![Node.js](https://img.shields advantageously.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.15.0/Recharts.min.js"></script>
 
-**Dự Án Đặt Lịch Xem Phim** là một ứng dụng web cho phép người dùng tìm kiếm, xem thông tin phim, đặt lịch xem phim và quản lý vé. Ứng dụng được xây dựng với **React** cho phần giao diện người dùng (frontend), **Node.js** và **Express** cho phần server (backend), và sử dụng **Neon** (dịch vụ PostgreSQL serverless) làm cơ sở dữ liệu.
+<div id="root"></div>
 
----
+<script type="text/babel">
+  const { useState, useEffect } = React;
+  const { createRoot } = ReactDOM;
+  const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
 
-## 📋 Tổng Quan Dự Án
+  function App() {
+    const [data, setData] = useState([]);
 
-Ứng dụng này cung cấp các tính năng chính như:
-- **Tìm kiếm phim**: Người dùng có thể tìm kiếm phim theo tên hoặc thể loại.
-- **Xem chi tiết phim**: Hiển thị thông tin chi tiết về phim (mô tả, thời lượng, thể loại, v.v.).
-- **Đặt lịch xem phim**: Người dùng có thể chọn suất chiếu và đặt vé.
-- **Quản lý vé**: Quản lý thông tin vé đã đặt (dành cho người dùng đăng nhập).
-- **Quản lý phim và suất chiếu**: Admin có thể thêm, sửa, xóa phim và lịch chiếu.
+    useEffect(() => {
+      // Load CSV data
+      const csvData = loadFileData("movies.csv");
+      Papa.parse(csvData, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim().replace(/^"|"$/g, ''),
+        transform: (value, header) => {
+          const cleaned = value.trim().replace(/^"|"$/g, '');
+          const booleanMap = { "true": true, "false": false };
+          const booleanValue = booleanMap[cleaned.toLowerCase()];
+          return booleanValue !== undefined ? booleanValue : cleaned;
+        },
+        complete: (results) => {
+          setData(results.data);
+        },
+        error: (err) => console.error("Error parsing CSV:", err),
+      });
+    }, []);
 
-### Cấu trúc dự án
-- **`frontend/`**: Chứa mã nguồn giao diện người dùng, xây dựng bằng React.
-- **`backend/`**: Chứa mã nguồn server, xây dựng bằng Node.js và Express.
-- **`package.json`**: Quản lý dependencies của dự án.
-- **`.gitignore`**: Định nghĩa các tệp/thư mục bỏ qua khi đẩy lên Git.
+    // Aggregate data by genre for visualization
+    const genreCount = data.reduce((acc, item) => {
+      const genre = item["Genre"] || "Unknown";
+      acc[genre] = (acc[genre] || 0) + 1;
+      return acc;
+    }, {});
 
----
+    const chartData = Object.keys(genreCount).map((genre) => ({
+      genre,
+      count: genreCount[genre],
+    }));
 
-## 🛠️ Công Nghệ Sử Dụng
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold text-center mb-6">Movie Booking Data Analysis</h1>
 
-| **Phần**         | **Công Nghệ**              |
-|------------------|----------------------------|
-| **Frontend**     | React, Material-UI         |
-| **Backend**      | Node.js, Express           |
-| **Database**     | Neon (PostgreSQL serverless) |
-| **Quản lý Dependencies** | npm                  |
+        {/* Summary */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Summary</h2>
+          <p className="text-gray-700">
+            This report analyzes the movie dataset to uncover trends in movie genres and their popularity.
+            The data includes information about movies, such as titles, genres, and other attributes.
+            We focus on the distribution of genres to understand which types of movies are most common.
+          </p>
+        </section>
 
----
+        {/* Visualization */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Genre Distribution</h2>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="genre" label={{ value: "Genre", position: "insideBottom", offset: -5, fontSize: 12 }} />
+              <YAxis label={{ value: "Number of Movies", angle: -90, position: "insideLeft", fontSize: 12 }} />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+            </LineChart>
+          </ResponsiveContainer>
+          <p className="text-gray-600 mt-2">
+            This chart shows the number of movies per genre. Hover over the line to see exact counts.
+          </p>
+        </section>
 
-## 📦 Yêu Cầu Hệ Thống
+        {/* Interesting Fact */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Interesting Fact</h2>
+          <p className="text-gray-700">
+            Did you know? The dataset reveals a surprising diversity in genres, with some niche categories
+            having more representation than expected. For example, if horror movies dominate, it might
+            reflect a cultural fascination with thrillers during certain seasons!
+          </p>
+        </section>
 
-Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt các công cụ sau:
-- **Node.js** (phiên bản 16.x hoặc cao hơn)  
-- **npm** (thường đi kèm với Node.js)  
-- Một tài khoản **Neon** để quản lý cơ sở dữ liệu PostgreSQL  
-- Trình duydev
-```
-Server sẽ chạy tại `http://localhost:5000`.
+        {/* Conclusion */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Conclusion</h2>
+          <p className="text-gray-700">
+            The analysis highlights the diversity of movie genres in the dataset, providing insights into
+            audience preferences. This can guide cinema scheduling and marketing strategies to focus on
+            popular genres. Further analysis could explore trends over time or by region to optimize
+            movie offerings.
+          </p>
+        </section>
+      </div>
+    );
+  }
 
-#### Frontend
-Trong thư mục `frontend`, chạy ứng dụng React:
-```bash
-npm start
-```
-Ứng dụng sẽ tự động mở trong trình duyệt tại `http://localhost:3000`.
-
-### 5. Kiểm Tra Cơ Sở Dữ Liệu
-- Đảm bảo bạn đã tạo cơ sở dữ liệu trên Neon và kết nối thành công.
-- Sử dụng công cụ như **pgAdmin** hoặc chạy các lệnh SQL trực tiếp trên bảng điều khiển của Neon để kiểm tra.
-
----
-
-## 🛠️ Các Lệnh
+  const container = document.getElementById("root");
+  const root = createRoot(container);
+  root.render(<App />);
+</script>
