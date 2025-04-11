@@ -30,7 +30,7 @@
 
 | **Phần**                  | **Công Nghệ**                     |
 |---------------------------|-----------------------------------|
-| **Frontend**              | React, Material-UI                |
+| **Frontend**              | React, Material-UI, Moment        |
 | **Backend**               | Node.js, Express, Multer          |
 | **Database**              | Neon (PostgreSQL serverless)      |
 | **Quản lý Dependencies**  | npm                               |
@@ -98,10 +98,12 @@ Dự án có hai phần chính: **frontend** và **backend**. Bạn cần cài �
    ```bash
    npm install
    ```
-3. (Tùy chọn) Nếu gặp lỗi liên quan đến Material-UI, thử cài thêm:
+3. Nếu `npm install` không cài đầy đủ, hãy đảm bảo cài thêm các thư viện sau:
    ```bash
-   npm install @mui/material @emotion/react @emotion/styled
+   npm install @mui/material @emotion/react @emotion/styled moment
    ```
+   - **`@mui/material`, `@emotion/react`, `@emotion/styled`**: Thư viện Material-UI cho giao diện.
+   - **`moment`**: Thư viện xử lý ngày giờ (dùng để định dạng thời gian, ví dụ: lịch chiếu phim).
 
 ### 3. Cấu Hình Cơ Sở Dữ Liệu
 - **Neon (PostgreSQL)**:
@@ -148,7 +150,7 @@ npm start
 ## ⚠️ Lưu Ý Khi Clone Dự Án
 1. **Thiếu Dependencies**: Nếu `npm install` không cài hết thư viện, kiểm tra `package.json` trong cả `frontend` và `backend` để đảm bảo tất cả thư viện được liệt kê. Các thư viện phổ biến bị thiếu có thể bao gồm:
    - Backend: `multer`, `mongoose`, `dotenv`, `pg`.
-   - Frontend: `@mui/material`, `@emotion/react`, `@emotion/styled`.
+   - Frontend: `@mui/material`, `@emotion/react`, `@emotion/styled`, `moment`.
 2. **Tệp `.env`**: Tệp này không được đẩy lên Git (do `.gitignore`). Bạn phải tạo lại `.env` với các biến môi trường cần thiết.
 3. **Kết Nối Cơ Sở Dữ Liệu**: Đảm bảo chuỗi kết nối database (Neon hoặc MongoDB) chính xác.
 4. **Phiên Bản Node.js**: Sử dụng Node.js 16.x hoặc cao hơn để tránh lỗi tương thích.
@@ -158,7 +160,7 @@ npm start
 ## ❓ Khắc Phục Sự Cố
 - **Lỗi `npm install`**:
   - Xóa thư mục `node_modules` và tệp `package-lock.json`, sau đó chạy lại `npm install`.
-  - Cài thủ công các thư viện bị thiếu (ví dụ: `npm install multer mongoose`).
+  - Cài thủ công các thư viện bị thiếu (ví dụ: `npm install moment`).
 - **Lỗi Kết Nối Database**:
   - Kiểm tra chuỗi kết nối trong `.env`.
   - Đảm bảo Neon hoặc MongoDB đang hoạt động.
